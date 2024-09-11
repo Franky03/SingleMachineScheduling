@@ -17,7 +17,7 @@ int main(){
     }
     cout << endl;
 
-    vector<Pedido> pedidosOrdenados = gulosao(pedidos, s);
+    vector<Pedido> pedidosOrdenados = gulosao_multa(pedidos, s);
 
     for (int i = 0; i < num_pedidos; i++) {
         cout << pedidosOrdenados[i].id << " ";
