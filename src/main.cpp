@@ -31,13 +31,57 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
         }
     }
 
-    std::cout << "Ordem após a busca local: ";
+    /* std::cout << "Ordem após a busca local: ";
     for (const auto& pedido : solucao.pedidos) {
         std::cout << pedido.id << " ";
     }
     std::cout << std::endl;
 
-    std::cout << "Multa após a busca local: " << solucao.multa << std::endl;
+    std::cout << "Multa após a busca local: " << solucao.multa << std::endl; */
+}
+
+void Perturbar(Solucao &solucao){
+    // exemplo: fazer um movimento aleatório de troca de dois pedidos
+    int i = rand() % solucao.pedidos.size();
+    int j = rand() % solucao.pedidos.size();
+
+    // garantir que i e j não sejam iguais
+    while (i == j) {
+        j = rand() % solucao.pedidos.size();
+    }
+
+    std::swap(solucao.pedidos[i], solucao.pedidos[j]);
+}
+
+void ILS(Solucao &solucao, std::vector<std::vector<int>>& s, int maxIter){
+    Solucao melhorSolucao = solucao;
+    BuscaLocal(melhorSolucao, s); // aplicar busca local inicialmente
+    int iter = 0;
+
+    while (iter < maxIter) {
+        Solucao novaSolucao = melhorSolucao;
+
+        Perturbar(novaSolucao);
+
+        BuscaLocal(novaSolucao, s);
+
+        // Critério de aceitação: aceita se for melhor
+        if (novaSolucao.multa < melhorSolucao.multa) {
+            melhorSolucao = novaSolucao;
+        }
+
+        iter++;
+    }
+
+    solucao = melhorSolucao;
+
+    std::cout << "Melhor ordem encontrada: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Melhor multa encontrada: " << solucao.multa << std::endl;
 }
 
 int main(){
@@ -68,8 +112,9 @@ int main(){
 
     std::cout << "Multa após o algoritmo guloso: " << solucao.multa << std::endl;
 
-    BuscaLocal(solucao, s);
-    
+    int maxIter = 100;
+    ILS(solucao, s, maxIter);
+
     return 0;
     
 }
