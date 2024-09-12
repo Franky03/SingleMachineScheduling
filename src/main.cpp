@@ -38,6 +38,31 @@ int main(){
         std::cout << pedido.id << " ";
     }
     std::cout << std::endl;
+
+    while(bestImprovementInsert(solucao, s)){
+        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    }
+
+    std::cout << "Ordem após a vizinhança: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+
+    while(bestImprovement2opt(solucao, s)){
+        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    }
+
+    std::cout << "Ordem após a vizinhança: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
+    }
+
+    std::cout << std::endl;
+
+    std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
     
     return 0;
     
