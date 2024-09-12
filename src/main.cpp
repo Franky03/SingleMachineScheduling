@@ -29,40 +29,43 @@ int main(){
 
     std::cout << "Multa após o algoritmo guloso: " << solucao.multa << std::endl;
 
-    while(bestImprovementSwap(solucao, s)){
-        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    while(bestImprovementSwap(solucao, s));{
+        //std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
     }
 
-    std::cout << "Ordem após a vizinhança: ";
+    std::cout << "Ordem após o Swap: ";
     for (const auto& pedido : solucao.pedidos) {
         std::cout << pedido.id << " ";
     }
     std::cout << std::endl;
 
-    while(bestImprovementInsert(solucao, s)){
-        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    std::cout << "Multa após o Swap: " << solucao.multa << std::endl;
+
+    while(bestImprovementInsert(solucao, s));
+    {
+        //std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
     }
 
-    std::cout << "Ordem após a vizinhança: ";
+    std::cout << "Ordem após o Insert: ";
     for (const auto& pedido : solucao.pedidos) {
         std::cout << pedido.id << " ";
     }
     std::cout << std::endl;
 
-    std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    std::cout << "Multa após o Insert: " << solucao.multa << std::endl;
 
-    while(bestImprovement2opt(solucao, s)){
-        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    while(bestImprovement2opt(solucao, s));{
+        //std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
     }
 
-    std::cout << "Ordem após a vizinhança: ";
+    std::cout << "Ordem após o 2-opt: ";
     for (const auto& pedido : solucao.pedidos) {
         std::cout << pedido.id << " ";
     }
 
     std::cout << std::endl;
 
-    std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    std::cout << "Multa após o 2-opt: " << solucao.multa << std::endl;
     
     return 0;
     
