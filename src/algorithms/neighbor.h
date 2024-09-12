@@ -9,8 +9,6 @@
 // 2. Inserção de um pedido em uma posição diferente (insert)
 // 3. Reversão de sub-sequência de pedidos (2-opt)
 
-// em config, temos a função calcularMulta, que calcula a multa total de uma sequência de pedidos
-
 bool bestImprovementSwap(Solucao& solucao, std::vector<std::vector<int>>& s);
 bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s);
 bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s); 
