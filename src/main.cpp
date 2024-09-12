@@ -1,50 +1,44 @@
 #include <iostream>
 #include "reader.h" 
 #include "guloso.h"  
-
-using namespace std;
-
-int calcularMulta(const vector<Pedido>& pedidos, const vector<vector<int>>& s) {
-    int tempo_atual = 0;
-    int soma_multa = 0;
-
-    for (int i = 0; i < pedidos.size(); i++){
-        if (i > 0){
-            tempo_atual += s[pedidos[i-1].id][pedidos[i].id];
-        }
-        tempo_atual += pedidos[i].tempo_producao;
-
-        if (tempo_atual> pedidos[i].prazo){
-            int atraso = tempo_atual - pedidos[i].prazo;
-            soma_multa += atraso * pedidos[i].multa;
-        }
-    }
-
-    return soma_multa;
-}
+#include "neighbor.h"
 
 int main(){
     int num_pedidos;
-    vector<Pedido> pedidos;
     vector<vector<int>> s;
+    Solucao solucao;
 
-    readInstance("../data/input.txt", num_pedidos, pedidos, s);
-
-   // printar a ordem dos pedidos (pedido id)
-    for (int i = 0; i < num_pedidos; i++) {
-        cout << pedidos[i].id << " ";
+    readInstance("../data/input.txt", num_pedidos, solucao.pedidos, s);
+    std::cout << "Ordem inicial dos pedidos: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
 
-    vector<Pedido> pedidosOrdenados = gulosao(pedidos, s);
+    solucao.calcularMulta(s);
+    std::cout << "Multa antes do algoritmo guloso: " << solucao.multa << std::endl;
 
-    for (int i = 0; i < num_pedidos; i++) {
-        cout << pedidosOrdenados[i].id << " ";
+
+    solucao = *gulosao(&solucao, s);
+
+    std::cout << "Ordem após o algoritmo guloso: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
     }
-    cout << endl;
+    std::cout << std::endl;
+
+    std::cout << "Multa após o algoritmo guloso: " << solucao.multa << std::endl;
+
+    while(bestImprovementSwap(solucao, s)){
+        std::cout << "Multa após a vizinhança: " << solucao.multa << std::endl;
+    }
+
+    std::cout << "Ordem após a vizinhança: ";
+    for (const auto& pedido : solucao.pedidos) {
+        std::cout << pedido.id << " ";
+    }
+    std::cout << std::endl;
     
-    cout << calcularMulta(pedidosOrdenados, s) << endl;
-
     return 0;
     
 }
