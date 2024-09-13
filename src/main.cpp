@@ -2,7 +2,14 @@
 #include "reader.h" 
 #include "guloso.h"  
 #include "neighbor.h"
+#include <chrono>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
+#include <filesystem>
 
+#define MAX_ITER 100
+#define MAX_ITER_ILS 200
 
 
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
@@ -63,15 +70,14 @@ void Perturbar(Solucao &solucao){
     std::swap(solucao.pedidos[i], solucao.pedidos[j]);
 }
 
-void ILS(Solucao &solucao, std::vector<std::vector<int>>& s, int maxIter, int maxIterILS){
+void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
     Solucao melhorSolucao;
-    for(int i=0; i < maxIter; ++i){
+    for(int i=0; i < MAX_ITER; ++i){
         Solucao novaSolucao = *Construcao(&solucao, s, 0.1);
-        std::cout << "Multa após a construção: " << novaSolucao.multaSolucao << std::endl;
         melhorSolucao = novaSolucao;
 
         int iterILS = 0;
-        while(iterILS < maxIterILS){
+        while(iterILS < MAX_ITER_ILS){
             //std::cout << "Iteração " << i << " do ILS, iteração " << iterILS << " da busca local" << std::endl;
             BuscaLocal(novaSolucao, s);
 
@@ -87,43 +93,64 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s, int maxIter, int ma
 
          if (novaSolucao.multaSolucao < melhorSolucao.multaSolucao) {
             melhorSolucao = novaSolucao;
-            std::cout << "Melhor multa encontrada na iteração " << i << ": " << melhorSolucao.multaSolucao << std::endl;
         }
 
     }
 
     solucao = melhorSolucao;
+}
 
-    std::cout << "Melhor ordem encontrada: ";
-    for (const auto& pedido : solucao.pedidos) {
-        std::cout << pedido.id << " ";
-    }
-    std::cout << std::endl;
+std::string getCurrentDateTime() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t time_now = std::chrono::system_clock::to_time_t(now);
+    std::tm* now_tm = std::localtime(&time_now);
 
-    std::cout << "Melhor multa encontrada: " << solucao.multaSolucao << std::endl;
+    std::ostringstream oss;
+    oss << std::put_time(now_tm, "%Y-%m-%d_%H-%M-%S");  // Formato: YYYY-MM-DD_HH-MM-SS
+    return oss.str();
 }
 
 int main(){
+    
     int num_pedidos;
     vector<vector<int>> s;
     Solucao solucao;
 
     readInstance("../data/input.txt", num_pedidos, solucao.pedidos, s);
-
-    std::cout << "Ordem inicial dos pedidos: ";
-
-    for (const auto& pedido : solucao.pedidos) {
-        std::cout << pedido.id << " ";
-    }
-    std::cout << std::endl;
-
     solucao.calcularMulta(s);
-    std::cout << "Multa Inicial: " << solucao.multaSolucao << std::endl;
 
-    int maxIter = 10;
-    int maxIterILS = 200;
-    ILS(solucao, s, maxIter, maxIterILS);
+    std::string timestamp = getCurrentDateTime();
+    std::string logFileName = "../logs/execution_log_" + timestamp + ".txt";
+
+    std::ofstream logFile(logFileName);
+    
+    if (!logFile.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo de log" << std::endl;
+        return 1;
+    }
+
+    logFile << "Multa inicial: " << solucao.multaSolucao << std::endl;
+
+    auto start = std::chrono::high_resolution_clock::now();
+
+    ILS(solucao, s);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+
+
+    logFile << "Ordem final dos pedidos: ";
+    for (const auto& pedido : solucao.pedidos) {
+        logFile << pedido.id << " ";
+    }
+    logFile << std::endl;
+
+    logFile << "Multa final: " << solucao.multaSolucao << std::endl;
+    logFile << "Tempo de execução: " << elapsed_seconds.count() << " segundos" << std::endl;
+
+    logFile.close();
 
     return 0;
     
 }
+//437868

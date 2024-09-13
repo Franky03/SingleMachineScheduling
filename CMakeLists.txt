@@ -10,6 +10,7 @@ set(CMAKE_BUILD_TYPE Release)
 
 # Definir os diretórios de inclusão (caminho para headers)
 include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/src/logs)
 include_directories(${PROJECT_SOURCE_DIR}/src/algorithms)
 
 # Adicionar todos os arquivos .cpp em src, algorithms, models e utils
