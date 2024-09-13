@@ -19,13 +19,13 @@ struct Pedido {
 
 struct Solucao {
     vector<Pedido> pedidos;
-    int multa;
+    int multaSolucao;
 
-    Solucao() : multa(0) {}
-    Solucao(const vector<Pedido> &pedidos, int multa) : pedidos(pedidos), multa(multa) {}
+    Solucao() : multaSolucao(0) {}
+    Solucao(const vector<Pedido> &pedidos, int multa) : pedidos(pedidos), multaSolucao(multa) {}
 
     void calcularMulta(const vector<vector<int>> &s) {
-        multa = 0;
+        multaSolucao = 0;
         int tempo_atual = 0;
 
         for (int i = 0; i < pedidos.size(); i++) {
@@ -36,7 +36,7 @@ struct Solucao {
 
             if (tempo_atual > pedidos[i].prazo) {
                 int atraso = tempo_atual - pedidos[i].prazo;
-                multa += atraso * pedidos[i].multa;
+                multaSolucao += atraso * pedidos[i].multa;
             }
         }
     }

@@ -2,12 +2,12 @@
 #include <algorithm>
 
 double calculateSwapDeltaMulta(Solucao& solucao, std::vector<std::vector<int>>& s, int i, int j){
-    double multa_atual = solucao.multa;
+    double multa_atual = solucao.multaSolucao;
 
     std::swap(solucao.pedidos[i], solucao.pedidos[j]);
     solucao.calcularMulta(s);
 
-    double delta_multa = solucao.multa - multa_atual;
+    double delta_multa = solucao.multaSolucao - multa_atual;
 
     std::swap(solucao.pedidos[i], solucao.pedidos[j]);
     solucao.calcularMulta(s);
@@ -49,7 +49,7 @@ bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s){
         for(int j = 1; j < solucao.pedidos.size(); j++){
             if(i == j) continue;
 
-            double multa_atual = solucao.multa;
+            double multa_atual = solucao.multaSolucao;
 
             Solucao temp_solucao = solucao;
 
@@ -61,7 +61,7 @@ bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s){
             temp_solucao.pedidos = pedidos;
             temp_solucao.calcularMulta(s);
 
-            double delta_multa = temp_solucao.multa - multa_atual;
+            double delta_multa = temp_solucao.multaSolucao - multa_atual;
 
             if(delta_multa < bestDeltaMulta){
                 bestDeltaMulta = delta_multa;
@@ -89,7 +89,7 @@ bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s){
 
     for (int i = 1; i < solucao.pedidos.size() - 2; i++) {
         for (int j = i + 1; j < solucao.pedidos.size() - 1; j++) {
-            double multa_atual = solucao.multa;
+            double multa_atual = solucao.multaSolucao;
 
             Solucao temp_solucao = solucao;
             std::vector<Pedido> pedidos = temp_solucao.pedidos;
@@ -98,7 +98,7 @@ bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s){
             temp_solucao.pedidos = pedidos;
             temp_solucao.calcularMulta(s);
 
-            double delta_multa = temp_solucao.multa - multa_atual;
+            double delta_multa = temp_solucao.multaSolucao - multa_atual;
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;
                 best_i = i;
