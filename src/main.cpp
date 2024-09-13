@@ -32,14 +32,6 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
             metodos.erase(metodos.begin() + n);
         }
     }
-
-    /* std::cout << "Ordem após a busca local: ";
-    for (const auto& pedido : solucao.pedidos) {
-        std::cout << pedido.id << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "Multa após a busca local: " << solucao.multa << std::endl; */
 }
 
 void DoubleBridge(Solucao &solucao){
@@ -128,7 +120,7 @@ int main(){
     solucao.calcularMulta(s);
     std::cout << "Multa Inicial: " << solucao.multaSolucao << std::endl;
 
-    int maxIter = 100;
+    int maxIter = 10;
     int maxIterILS = 200;
     ILS(solucao, s, maxIter, maxIterILS);
 

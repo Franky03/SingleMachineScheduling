@@ -12,5 +12,6 @@
 bool bestImprovementSwap(Solucao& solucao, std::vector<std::vector<int>>& s);
 bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s);
 bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s); 
+bool bestImprovementOrOpt(Solucao& solucao, std::vector<std::vector<int>>& s);
 
 #endif // VIZINHANCA_H
