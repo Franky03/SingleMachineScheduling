@@ -45,8 +45,10 @@ bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s){
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1;
 
-    for(int i = 0; i < solucao.pedidos.size() - 1; i++){
-        for(int j = 1; j < solucao.pedidos.size(); j++){
+    int size = solucao.pedidos.size();
+
+    for(int i = 0; i < size - 1; i++){
+        for(int j = 1; j < size; j++){
             if(i == j) continue;
 
             double multa_atual = solucao.multaSolucao;
@@ -115,3 +117,7 @@ bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s){
 
     return false;
 }
+
+/* bool bestImprovementOrOpt(Solucao& solucao, std::vector<std::vector<int>>& s){
+    
+} */

@@ -20,6 +20,7 @@ file(GLOB_RECURSE SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/models/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/utils/*.cpp"
     "${PROJECT_SOURCE_DIR}/src/algorithms/neighbor.cpp"
+    "${PROJECT_SOURCE_DIR}/src/algorithms/solver.cpp"
 )
 
 # Adicionar o executável
