@@ -1,4 +1,8 @@
 #include "solver.h"
+#include <cmath>
+#include <cstdlib>  // Para rand()
+#include <ctime>    // Para time()
+#include <fstream>  // Para escrever em arquivos
 
 #define MAX_ITER 100
 #define MAX_ITER_ILS 200
@@ -89,4 +93,48 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
     }
 
     solucao = melhorSolucao;
+}
+
+void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s){
+
+    srand(time(0));
+
+    Solucao atualSolucao = *Construcao(&solucao, s, 0.1);
+    Solucao melhorSolucao = atualSolucao;
+
+    double temperaturaInicial = 10000;
+    double temperaturaFinal = 0.001;
+    double alpha = 0.9;
+    double temperatura = temperaturaInicial;
+    int iter = 0;
+
+    std::ofstream outputFile("../data/simulated_annealing.csv");
+    outputFile << "Iteracao,Temperatura,Custo\n";  // Cabeçalho do arquivo CSV
+
+    while (temperatura > temperaturaFinal) {
+        Solucao novaSolucao = atualSolucao;
+
+        BuscaLocal(novaSolucao, s);
+        
+        double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
+
+        if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
+            atualSolucao = novaSolucao;
+        } 
+
+        if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
+            melhorSolucao = atualSolucao;
+        }
+
+        outputFile << iter << "," << temperatura << "," << atualSolucao.multaSolucao << "\n";
+
+        temperatura *= alpha;
+        DoubleBridge(atualSolucao);  // Perturbação da solução atual
+        iter++;
+    }
+
+    outputFile.close();
+
+    solucao = melhorSolucao;
+
 }

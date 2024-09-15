@@ -23,7 +23,6 @@ bool bestImprovementSwap(Solucao& solucao, std::vector<std::vector<int>>& s){
         for (int j = i+1; j < solucao.pedidos.size(); j++){
             // calcular a mudança incremental na multa
             double delta_multa = calculateSwapDeltaMulta(solucao, s, i, j);
-            
             if(delta_multa < bestDeltaMulta){
                 bestDeltaMulta = delta_multa;
                 best_i = i;
@@ -117,7 +116,3 @@ bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s){
 
     return false;
 }
-
-/* bool bestImprovementOrOpt(Solucao& solucao, std::vector<std::vector<int>>& s){
-    
-} */

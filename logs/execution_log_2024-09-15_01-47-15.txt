@@ -1,0 +1,4 @@
+Multa inicial: 491971
+Ordem final dos pedidos: 18 17 16 11 7 2 5 8 3 0 9 10 12 13 14 15 19 6 1 4 
+Multa final: 395097
+Tempo de execução: 0.0645925 segundos

@@ -9,8 +9,6 @@
 #include <filesystem>
 
 
-
-
 std::string getCurrentDateTime() {
     auto now = std::chrono::system_clock::now();
     std::time_t time_now = std::chrono::system_clock::to_time_t(now);
@@ -44,7 +42,8 @@ int main(){
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    ILS(solucao, s);
+    SimulatedAnnealing(solucao, s);
+    //ILS(solucao, s);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -64,4 +63,3 @@ int main(){
     return 0;
     
 }
-//437868
