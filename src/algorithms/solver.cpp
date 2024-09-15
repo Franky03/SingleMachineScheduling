@@ -8,7 +8,7 @@
 
 #define MAX_ITER 100
 #define MAX_ITER_ILS 200
-#define L 100
+#define L 200
 #define NUM_THREADS 4
 
 std::mutex mtx;
@@ -132,7 +132,7 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
 
     double temperaturaInicial = 1e5;
     double temperaturaFinal = 1e-3;
-    double alpha = 0.9;
+    double alpha = 0.92;
     double temperatura = temperaturaInicial;
     int iter = 0;
     
