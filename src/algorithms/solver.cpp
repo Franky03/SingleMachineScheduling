@@ -12,6 +12,8 @@
 #define NUM_THREADS 4
 
 std::mutex mtx;
+std::mutex stopMtx;
+bool stop = false;
 
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     std::vector<int> metodos = {0,1,2};
@@ -105,6 +107,12 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
 
 void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::vector<std::vector<int>>& s, std::ofstream& outputFile, int& iter){
     for (int i = L_start; i < L_end; ++i){
+
+        {
+            std::lock_guard<std::mutex> guard(stopMtx);
+            if (stop) return;  // se a flag estiver ativada, interrompe a execução
+        }
+
         Solucao novaSolucao = atualSolucao;
         BuscaLocal(novaSolucao, s);
         double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
@@ -120,6 +128,16 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
 
             outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
             iter++;
+
+            if (melhorSolucao.multaSolucao == 0) {
+                std::lock_guard<std::mutex> stopGuard(stopMtx);
+                stop = true;  // Define a flag para parar todas as threads
+            }
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(stopMtx);
+            if (stop) return;  // Para se a flag for ativada
         }
     }
 }
@@ -160,6 +178,11 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
 
         for(auto& t : threads){
             t.join();
+        }
+
+        {
+            std::lock_guard<std::mutex> guard(stopMtx);
+            if (stop) break;  // se a flag estiver ativada, interrompe o loop
         }
 
         // reduzir a temperatura após gerar a cadeia de Markov de tamanho L
