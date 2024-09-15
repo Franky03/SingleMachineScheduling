@@ -25,7 +25,7 @@ int main(){
     vector<vector<int>> s;
     Solucao solucao;
 
-    readInstance("../data/instancia_20.txt", num_pedidos, solucao.pedidos, s);
+    readInstance("../data/instancia_precisa_20.txt", num_pedidos, solucao.pedidos, s);
     solucao.calcularMulta(s);
 
     std::string timestamp = getCurrentDateTime();
