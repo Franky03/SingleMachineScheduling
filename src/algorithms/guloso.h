@@ -5,5 +5,6 @@
 #include "config.h"
 // Função principal do algoritmo guloso
 Solucao* Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, double alpha);
+Solucao* gulosao(Solucao* solucao, const std::vector<std::vector<int>>& s);
 
 #endif // GULOSO_H

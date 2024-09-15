@@ -6,6 +6,7 @@
 
 #define MAX_ITER 100
 #define MAX_ITER_ILS 200
+#define L 100
 
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     std::vector<int> metodos = {0,1,2};
@@ -97,46 +98,52 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
     solucao = melhorSolucao;
 }
 
-void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s){
-
+void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
     srand(time(0));
 
-    Solucao atualSolucao = *Construcao(&solucao, s, 0.1);
+    Solucao atualSolucao = *gulosao(&solucao, s);
     Solucao melhorSolucao = atualSolucao;
 
-    double temperaturaInicial = 1e4;
+    double temperaturaInicial = 1e5;
     double temperaturaFinal = 1e-3;
     double alpha = 0.9;
     double temperatura = temperaturaInicial;
     int iter = 0;
+    
 
     std::ofstream outputFile("../data/simulated_annealing.csv");
-    outputFile << "Iteracao,Temperatura,Custo\n";  // Cabeçalho do arquivo CSV
+    outputFile << "Iteracao,Temperatura,Custo\n"; 
 
     while (temperatura > temperaturaFinal) {
-        Solucao novaSolucao = atualSolucao;
+        // cadeia de Markov de tamanho L
+        for (int i = 0; i < L; i++) {
+            Solucao novaSolucao = atualSolucao;
 
-        BuscaLocal(novaSolucao, s);
-        
-        double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
+            BuscaLocal(novaSolucao, s);
+            
+            double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
 
-        if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
-            atualSolucao = novaSolucao;
-        } 
+            if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
+                atualSolucao = novaSolucao;
+            }
 
-        if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
-            melhorSolucao = atualSolucao;
+            if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
+                melhorSolucao = atualSolucao;
+            }
+
+            outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
+
+            iter++;
         }
 
-        outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
-
+        // reduzir a temperatura após gerar a cadeia de Markov de tamanho L
         temperatura *= alpha;
-        DoubleBridge(atualSolucao);  // Perturbação da solução atual
-        iter++;
+
+        // aplicar a perturbação na solução atual após a cadeia de Markov
+        DoubleBridge(atualSolucao);
     }
 
     outputFile.close();
 
     solucao = melhorSolucao;
-
 }

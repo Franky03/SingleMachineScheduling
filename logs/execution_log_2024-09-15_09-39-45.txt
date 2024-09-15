@@ -1,0 +1,4 @@
+Multa inicial: 360
+Ordem final dos pedidos: 0 1 2 3 4 
+Multa final: 360
+Tempo de execução: 0.00260618 segundos

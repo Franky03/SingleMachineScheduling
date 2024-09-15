@@ -24,17 +24,13 @@ Solucao *Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, do
 }
 
 Solucao* gulosao(Solucao* solucao, const std::vector<std::vector<int>>& s) {
-    // fazer a construção iterativamente até que todos os pedidos sejam alocados
-
+    
     std::sort(solucao->pedidos.begin(), solucao->pedidos.end(), [](const Pedido& a, const Pedido& b) {
-        if(a.multa != b.multa) {
-            return a.multa < b.multa; // menor prazo
-        } else if(a.tempo_producao != b.tempo_producao) {
-            return a.tempo_producao < b.tempo_producao; // menor tempo de produção
-        }
-        return a.prazo < b.prazo; // menor multa
+        return (a.prazo - a.tempo_producao) / a.multa < (b.prazo - b.tempo_producao) / b.multa;
     });
 
     solucao->calcularMulta(s);
+
     return solucao;
+    
 }

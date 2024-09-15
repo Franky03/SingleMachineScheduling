@@ -18,7 +18,7 @@ void generateRandomNumbers(vector<int> &vec, list<int> &lst, int size) {
 }
 
 int main() {
-    const int SIZE = 10000;
+    const int SIZE = 100000;
     const int REPEATS = 10000;
 
     // Inicializar gerador de números aleatórios
