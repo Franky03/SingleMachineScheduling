@@ -1,0 +1,2 @@
+Tempo médio para operações básicas em vector (microsegundos): 75.6699
+Tempo médio para operações básicas em list (microsegundos): 53.9561

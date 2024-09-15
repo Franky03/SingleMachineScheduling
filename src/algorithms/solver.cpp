@@ -13,7 +13,9 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
-        switch (metodos[n]){
+        switch (metodos[n]){ 
+            // switch case é mais eficiente que if-else encadeado para múltiplas comparações pois é implementado como uma tabela de saltos
+            // enquanto o if-else no pior caso, tem complexidade O(n)
             case 0:
                 //std::cout<< "Swap Movement\n" << std::endl;
                 melhorou = bestImprovementSwap(solucao, s);
@@ -102,8 +104,8 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s){
     Solucao atualSolucao = *Construcao(&solucao, s, 0.1);
     Solucao melhorSolucao = atualSolucao;
 
-    double temperaturaInicial = 10000;
-    double temperaturaFinal = 0.001;
+    double temperaturaInicial = 1e4;
+    double temperaturaFinal = 1e-3;
     double alpha = 0.9;
     double temperatura = temperaturaInicial;
     int iter = 0;
@@ -126,7 +128,7 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s){
             melhorSolucao = atualSolucao;
         }
 
-        outputFile << iter << "," << temperatura << "," << atualSolucao.multaSolucao << "\n";
+        outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
 
         temperatura *= alpha;
         DoubleBridge(atualSolucao);  // Perturbação da solução atual
