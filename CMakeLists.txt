@@ -8,6 +8,8 @@ project(opt)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_BUILD_TYPE Release)
 
+find_package(Threads REQUIRED)
+
 # Definir os diretórios de inclusão (caminho para headers)
 include_directories(${PROJECT_SOURCE_DIR}/src)
 include_directories(${PROJECT_SOURCE_DIR}/src/logs)
@@ -25,3 +27,5 @@ file(GLOB_RECURSE SRC_FILES
 
 # Adicionar o executável
 add_executable(opt ${SRC_FILES})
+
+target_link_libraries(opt ${CMAKE_THREAD_LIBS_INIT})

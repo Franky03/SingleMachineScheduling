@@ -3,10 +3,15 @@
 #include <cstdlib>  // Para rand()
 #include <ctime>    // Para time()
 #include <fstream>  // Para escrever em arquivos
+#include <thread>
+#include <mutex>
 
 #define MAX_ITER 100
 #define MAX_ITER_ILS 200
 #define L 100
+#define NUM_THREADS 4
+
+std::mutex mtx;
 
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     std::vector<int> metodos = {0,1,2};
@@ -98,6 +103,27 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
     solucao = melhorSolucao;
 }
 
+void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::vector<std::vector<int>>& s, std::ofstream& outputFile, int& iter){
+    for (int i = L_start; i < L_end; ++i){
+        Solucao novaSolucao = atualSolucao;
+        BuscaLocal(novaSolucao, s);
+        double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
+
+        {
+            std::lock_guard<std::mutex> guard(mtx);
+            if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
+                atualSolucao = novaSolucao;
+            }
+            if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
+                melhorSolucao = atualSolucao;
+            }
+
+            outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
+            iter++;
+        }
+    }
+}
+
 void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
     srand(time(0));
 
@@ -115,25 +141,25 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
     outputFile << "Iteracao,Temperatura,Custo\n"; 
 
     while (temperatura > temperaturaFinal) {
-        // cadeia de Markov de tamanho L
-        for (int i = 0; i < L; i++) {
-            Solucao novaSolucao = atualSolucao;
+        std::vector<std::thread> threads;
+        int chunkSize = L / NUM_THREADS;
 
-            BuscaLocal(novaSolucao, s);
-            
-            double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
+        for (int t = 0; t < NUM_THREADS; ++t){
+            int L_start = t * chunkSize;
+            int L_end = (t == NUM_THREADS - 1) ? L : L_start + chunkSize;
+            threads.push_back(
+                std::thread(
+                    MarkovChains, 
+                    t, L_start, L_end, 
+                    std::ref(atualSolucao), std::ref(melhorSolucao), 
+                    temperatura, std::ref(s), std::ref(outputFile), 
+                    std::ref(iter)
+                )
+            );
+        }
 
-            if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
-                atualSolucao = novaSolucao;
-            }
-
-            if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
-                melhorSolucao = atualSolucao;
-            }
-
-            outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
-
-            iter++;
+        for(auto& t : threads){
+            t.join();
         }
 
         // reduzir a temperatura após gerar a cadeia de Markov de tamanho L
