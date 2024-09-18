@@ -48,5 +48,5 @@ def gerar_instancia_precisa(N):
     print(f"Arquivo '{nome_arquivo}' gerado com sucesso!")
 
 # Testar com N = 100
-N = 100
+N = 200
 gerar_instancia_precisa(N)

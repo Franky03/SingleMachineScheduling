@@ -25,7 +25,7 @@ int main(){
     vector<vector<int>> s;
     Solucao solucao;
 
-    readInstance("../data/instancia_precisa_100.txt", num_pedidos, solucao.pedidos, s);
+    readInstance("../data/instancia_precisa_50.txt", num_pedidos, solucao.pedidos, s);
     solucao.calcularMulta(s);
 
     std::string timestamp = getCurrentDateTime();
@@ -42,8 +42,8 @@ int main(){
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    SimulatedAnnealing(solucao, s);
-    //ILS(solucao, s);
+    //SimulatedAnnealing(solucao, s);
+    ILS(solucao, s);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;

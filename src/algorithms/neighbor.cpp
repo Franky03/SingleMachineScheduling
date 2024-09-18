@@ -1,6 +1,17 @@
 #include "neighbor.h"
 #include <algorithm>
 
+
+double calculateSwapDeltaMultaOpt(Solucao& solucao, std::vector<std::vector<int>>& s, int i, int j) {
+    Solucao temp_solucao = solucao;
+    double multa_atual = solucao.multaSolucao;
+
+    std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
+    temp_solucao.calcularMulta(s);
+
+    return temp_solucao.multaSolucao - multa_atual;
+}
+
 double calculateSwapDeltaMulta(Solucao& solucao, std::vector<std::vector<int>>& s, int i, int j){
     double multa_atual = solucao.multaSolucao;
 

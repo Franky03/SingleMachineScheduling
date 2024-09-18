@@ -50,7 +50,12 @@
         "ctime": "cpp",
         "ratio": "cpp",
         "iomanip": "cpp",
-        "sstream": "cpp"
+        "sstream": "cpp",
+        "condition_variable": "cpp",
+        "list": "cpp",
+        "optional": "cpp",
+        "mutex": "cpp",
+        "thread": "cpp"
     },
     "CodeGPT.apiKey": "CodeGPT Plus Beta"
 }

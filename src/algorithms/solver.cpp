@@ -4,6 +4,7 @@
 #include <ctime>    // Para time()
 #include <fstream>  // Para escrever em arquivos
 #include <thread>
+#include <atomic>
 #include <mutex>
 
 #define MAX_ITER 100
@@ -13,7 +14,7 @@
 
 std::mutex mtx;
 std::mutex stopMtx;
-bool stop = false;
+std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     std::vector<int> metodos = {0,1,2};
@@ -53,13 +54,22 @@ void DoubleBridge(Solucao &solucao){
     int pos2 = pos1 + 1 + rand() % (n / 4);
     int pos3 = pos2 + 1 + rand() % (n / 4);
     
-    std::vector<Pedido> novoVetor;
-    novoVetor.insert(novoVetor.end(), solucao.pedidos.begin(), solucao.pedidos.begin() + pos1); // A
-    novoVetor.insert(novoVetor.end(), solucao.pedidos.begin() + pos3, solucao.pedidos.end()); // D
-    novoVetor.insert(novoVetor.end(), solucao.pedidos.begin() + pos2, solucao.pedidos.begin() + pos3); // C
-    novoVetor.insert(novoVetor.end(), solucao.pedidos.begin() + pos1, solucao.pedidos.begin() + pos2); // B
+    // Utiliza iteradores para acessar as posições no vetor
+    auto itBegin = solucao.pedidos.begin();
+    auto itPos1 = itBegin + pos1;
+    auto itPos2 = itBegin + pos2;
+    auto itPos3 = itBegin + pos3;
 
-    solucao.pedidos = novoVetor;
+    // Reorganiza o vetor diretamente
+    std::vector<Pedido> novoVetor;
+    novoVetor.reserve(n);
+
+    novoVetor.insert(novoVetor.end(), itBegin, itPos1); // A
+    novoVetor.insert(novoVetor.end(), itPos3, solucao.pedidos.end()); // D
+    novoVetor.insert(novoVetor.end(), itPos2, itPos3); // C
+    novoVetor.insert(novoVetor.end(), itPos1, itPos2); // B
+
+    solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
 }
 
 void Perturbar(Solucao &solucao){
@@ -75,42 +85,42 @@ void Perturbar(Solucao &solucao){
     std::swap(solucao.pedidos[i], solucao.pedidos[j]);
 }
 
-void ILS(Solucao &solucao, std::vector<std::vector<int>>& s){
-    Solucao melhorSolucao;
-    for(int i=0; i < MAX_ITER; ++i){
-        Solucao novaSolucao = *Construcao(&solucao, s, 0.1);
-        melhorSolucao = novaSolucao;
+void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
+    Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
+    Solucao novaSolucao;
+
+    for (int i = 0; i < MAX_ITER; ++i) {
+        novaSolucao = *Construcao(&solucao, s, 0.1);  // Nova solução construída
+        Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
 
         int iterILS = 0;
-        while(iterILS < MAX_ITER_ILS){
-            //std::cout << "Iteração " << i << " do ILS, iteração " << iterILS << " da busca local" << std::endl;
+        while (iterILS < MAX_ITER_ILS) {
             BuscaLocal(novaSolucao, s);
 
-            // Critério de aceitação: aceita se for melhor
-            if (novaSolucao.multaSolucao < melhorSolucao.multaSolucao) {
-                melhorSolucao = novaSolucao;
+            if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
+                melhorLocal = novaSolucao;  // Cópia da nova solução como a melhor local
                 iterILS = 0;
             }
 
-            DoubleBridge(novaSolucao);
+            DoubleBridge(novaSolucao); 
             iterILS++;
         }
 
-         if (novaSolucao.multaSolucao < melhorSolucao.multaSolucao) {
-            melhorSolucao = novaSolucao;
+        // Verifica se a melhor solução local é melhor que a global
+        if (melhorLocal.multaSolucao < melhorSolucao.multaSolucao) {
+            melhorSolucao = melhorLocal;
+            std::cout << "Melhorou ILS: " << melhorSolucao.multaSolucao << std::endl;
         }
-
     }
 
-    solucao = melhorSolucao;
+    solucao = melhorSolucao;  // Atualiza a solução final
 }
 
-void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::vector<std::vector<int>>& s, std::ofstream& outputFile, int& iter){
+void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::vector<std::vector<int>>& s, std::ofstream& outputFile, std::atomic<int>& iter){
     for (int i = L_start; i < L_end; ++i){
 
         {
-            std::lock_guard<std::mutex> guard(stopMtx);
-            if (stop) return;  // se a flag estiver ativada, interrompe a execução
+            if(stop.load()) return;  // para se a flag for ativada
         }
 
         Solucao novaSolucao = atualSolucao;
@@ -118,32 +128,32 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
         double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
 
         {
-            std::lock_guard<std::mutex> guard(mtx);
             if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
+                std::lock_guard<std::mutex> guard(mtx);
                 atualSolucao = novaSolucao;
             }
             if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
+                std::lock_guard<std::mutex> guard(mtx);
                 melhorSolucao = atualSolucao;
             }
 
+            std::lock_guard<std::mutex> guard(mtx);
             outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
             iter++;
 
             if (melhorSolucao.multaSolucao == 0) {
-                std::lock_guard<std::mutex> stopGuard(stopMtx);
-                stop = true;  // Define a flag para parar todas as threads
+                stop.store(true);
             }
         }
 
         {
-            std::lock_guard<std::mutex> guard(stopMtx);
-            if (stop) return;  // Para se a flag for ativada
+            if(stop.load()) return;  // para se a flag for ativada
         }
     }
 }
 
 void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
-    srand(time(0));
+    srand(static_cast<unsigned int>(time(0)));
 
     Solucao atualSolucao = *gulosao(&solucao, s);
     Solucao melhorSolucao = atualSolucao;
@@ -152,7 +162,7 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
     double temperaturaFinal = 1e-3;
     double alpha = 0.92;
     double temperatura = temperaturaInicial;
-    int iter = 0;
+    std::atomic<int> iter(0);
     
 
     std::ofstream outputFile("../data/simulated_annealing.csv");
@@ -181,8 +191,7 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
         }
 
         {
-            std::lock_guard<std::mutex> guard(stopMtx);
-            if (stop) break;  // se a flag estiver ativada, interrompe o loop
+            if(stop.load()) break;  // para se a flag for ativada
         }
 
         // reduzir a temperatura após gerar a cadeia de Markov de tamanho L
@@ -193,6 +202,6 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
     }
 
     outputFile.close();
-
+    std::cout << "Encontrada na iteração " << iter << std::endl;
     solucao = melhorSolucao;
 }
