@@ -7,7 +7,7 @@
 #include <atomic>
 #include <mutex>
 
-#define MAX_ITER 100
+#define MAX_ITER 150
 #define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 4
@@ -19,15 +19,14 @@ std::atomic<bool> stop(false);
 void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     std::vector<int> metodos = {0,1,2};
     bool melhorou = false;
+    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
-            // switch case é mais eficiente que if-else encadeado para múltiplas comparações pois é implementado como uma tabela de saltos
-            // enquanto o if-else no pior caso, tem complexidade O(n)
             case 0:
-                //std::cout<< "Swap Movement\n" << std::endl;
                 melhorou = bestImprovementSwap(solucao, s);
+                if(melhorou) count++;
                 break;
             case 1:
                 //std::cout<< "Insert Movement\n" << std::endl;
@@ -45,6 +44,8 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
             metodos.erase(metodos.begin() + n);
         }
     }
+
+    std::cout << "Melhorou Swap: " << count << std::endl;
 }
 
 void DoubleBridge(Solucao &solucao){
@@ -60,7 +61,6 @@ void DoubleBridge(Solucao &solucao){
     auto itPos2 = itBegin + pos2;
     auto itPos3 = itBegin + pos3;
 
-    // Reorganiza o vetor diretamente
     std::vector<Pedido> novoVetor;
     novoVetor.reserve(n);
 
@@ -72,25 +72,12 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
 }
 
-void Perturbar(Solucao &solucao){
-    // exemplo: fazer um movimento aleatório de troca de dois pedidos
-    int i = rand() % solucao.pedidos.size();
-    int j = rand() % solucao.pedidos.size();
-
-    // garantir que i e j não sejam iguais
-    while (i == j) {
-        j = rand() % solucao.pedidos.size();
-    }
-
-    std::swap(solucao.pedidos[i], solucao.pedidos[j]);
-}
-
 void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
     Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
     Solucao novaSolucao;
 
     for (int i = 0; i < MAX_ITER; ++i) {
-        novaSolucao = *Construcao(&solucao, s, 0.1);  // Nova solução construída
+        novaSolucao = *Construcao(&solucao, s, 0.25);  // Nova solução construída
         Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
 
         int iterILS = 0;

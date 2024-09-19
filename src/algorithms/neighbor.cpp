@@ -3,12 +3,11 @@
 
 
 double calculateSwapDeltaMultaOpt(Solucao& solucao, std::vector<std::vector<int>>& s, int i, int j) {
+    // copiar a solucao original
     Solucao temp_solucao = solucao;
     double multa_atual = solucao.multaSolucao;
-
     std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
     temp_solucao.calcularMulta(s);
-
     return temp_solucao.multaSolucao - multa_atual;
 }
 
@@ -30,10 +29,11 @@ bool bestImprovementSwap(Solucao& solucao, std::vector<std::vector<int>>& s){
    double bestDeltaMulta = 0;
    int best_i, best_j;
     
-    for (int i = 1; i < solucao.pedidos.size() - 1; i++){
+    for (int i = 0; i < solucao.pedidos.size() - 1; i++){
         for (int j = i+1; j < solucao.pedidos.size(); j++){
             // calcular a mudança incremental na multa
-            double delta_multa = calculateSwapDeltaMulta(solucao, s, i, j);
+            double delta_multa = calculateSwapDeltaMultaOpt(solucao, s, i, j);
+            
             if(delta_multa < bestDeltaMulta){
                 bestDeltaMulta = delta_multa;
                 best_i = i;
