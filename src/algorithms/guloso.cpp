@@ -1,21 +1,34 @@
 #include "guloso.h"
 #include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <queue>
+
+struct CompararPedido { // para a fila de prioridade
+    bool operator()(const Pedido& a, const Pedido& b) const {
+        return a.multa / (a.prazo - a.tempo_producao) < b.multa / (b.prazo - b.tempo_producao);
+    }
+};
+
 
 Solucao *Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, double alpha){
     std::vector<Pedido> naoAlocados = solucao->pedidos;
     solucao->pedidos.clear();
+    // armazena os pedidos não alocados em uma fila de prioridade de acordo com a razão multa/atraso
+    std::priority_queue<Pedido, std::vector<Pedido>, CompararPedido> filaPrioridade(naoAlocados.begin(), naoAlocados.end());
+    std::vector<Pedido> RCL;
+    while (!filaPrioridade.empty()) {
+        while (RCL.size() < std::max(1, static_cast<int>(filaPrioridade.size() * alpha))) {
+            Pedido pedido = filaPrioridade.top();
+            filaPrioridade.pop();
+            RCL.push_back(pedido);
+        }
+        int indexEscolhido = rand() % RCL.size();
+        Pedido pedidoEscolhido = RCL[indexEscolhido];
 
-    while(!naoAlocados.empty()){
-        std::sort(naoAlocados.begin(), naoAlocados.end(), [](const Pedido& a, const Pedido& b) {
-            return a.multa / (a.prazo - a.tempo_producao) > b.multa / (b.prazo - b.tempo_producao);
-        });
-
-        int rclSize = std::max(1, static_cast<int>(naoAlocados.size() * alpha));
-        int indexEscolhido = rand() % rclSize;
-
-        Pedido pedidoEscolhido = naoAlocados[indexEscolhido];
         solucao->pedidos.push_back(pedidoEscolhido);
-        naoAlocados.erase(naoAlocados.begin() + indexEscolhido);
+
+        RCL.erase(RCL.begin() + indexEscolhido);
     }
 
     solucao->calcularMulta(s);  
