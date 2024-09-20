@@ -6,13 +6,17 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <queue>
+#include <unordered_set>
 
-#define MAX_ITER 150
-#define MAX_ITER_ILS 200
+#define MAX_ITER 200
+#define MAX_ITER_ILS 150
 #define L 200
-#define NUM_THREADS 4
+#define NUM_THREADS 5
+#define MAX_ITER_SEM_MELHORA 50
 
 std::mutex mtx;
+
 std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
@@ -46,6 +50,7 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
     }
 }
 
+
 void DoubleBridge(Solucao &solucao){
     int n = solucao.pedidos.size();
 
@@ -70,9 +75,69 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
 }
 
+void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, int iterStart, int iterEnd) {
+    Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
+    Solucao novaSolucao;
+
+    for (int i = iterStart; i < iterEnd; ++i) {
+        novaSolucao = *Construcao(&melhorSolucao, s, 0.50);
+        Solucao melhorLocal = novaSolucao; 
+
+        int iterILS = 0;
+        while (iterILS < MAX_ITER_ILS) {
+            BuscaLocal(novaSolucao, s);
+
+            if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
+                melhorLocal = novaSolucao;  
+                iterILS = 0;
+            }
+
+
+            DoubleBridge(novaSolucao);
+            novaSolucao.calcularMulta(s);
+            iterILS++;
+        }
+
+        // se a melhor solução local for melhor que a melhor solução global
+        {
+            std::lock_guard<std::mutex> lock(mtx);  // trava o mutex durante a comparação
+            if (melhorLocal.multaSolucao < melhorSolucaoGlobal.multaSolucao) {
+                melhorSolucaoGlobal = melhorLocal;
+                std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
+                        << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
+            }
+        }
+    }
+
+}
+
+void ILS_Opt(Solucao& solucao, std::vector<std::vector<int>>& s) {
+    const int numThreads = 4;
+    int iterPerThread = MAX_ITER / numThreads;
+    
+    Solucao melhorSolucao = solucao;
+
+    std::vector<std::thread> threads;
+    for (int t = 0; t < numThreads; ++t) {
+        int iterStart = t * iterPerThread;
+        int iterEnd = (t == numThreads - 1) ? MAX_ITER : iterStart + iterPerThread;
+        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), std::ref(s), iterStart, iterEnd);
+    }
+
+    for (auto& th : threads) {
+        th.join();
+    }
+
+    solucao = melhorSolucao;
+}
+
+
+
 void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
     Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
     Solucao novaSolucao;
+
+    double temperatura = 1e5;
 
     for (int i = 0; i < MAX_ITER; ++i) {
         novaSolucao = *Construcao(&solucao, s, 0.20);  // Nova solução construída
@@ -96,6 +161,7 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
         // Verifica se a melhor solução local é melhor que a global
         if (melhorLocal.multaSolucao < melhorSolucao.multaSolucao) {
             melhorSolucao = melhorLocal;
+            std::cout << "Iteração " << i << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
         }
     }
 

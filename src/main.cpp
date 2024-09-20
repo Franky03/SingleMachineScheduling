@@ -20,7 +20,8 @@ double calcularGap(double optimal, double found){
 std::pair<double, double> rodarAlgoritmo(Solucao& solucao, std::vector<std::vector<int>>& s){
     auto start = std::chrono::high_resolution_clock::now();
     solucao.calcularMulta(s);
-    SimulatedAnnealing(solucao, s);
+    //SimulatedAnnealing(solucao, s);
+    ILS_Opt(solucao, s);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -45,7 +46,7 @@ void rodarExperimento(Solucao& solucao, std::vector<std::vector<int>>& s, const 
 
     double gap = calcularGap(valorOtimo, melhorMulta);
 
-    std::string nomeArquivo = "../results/" + instanceName + "_resultados.txt";
+    std::string nomeArquivo = "../results_ils/" + instanceName + "_resultados.txt";
     std::ofstream arquivoResultado(nomeArquivo);
 
     if (arquivoResultado.is_open()) {
