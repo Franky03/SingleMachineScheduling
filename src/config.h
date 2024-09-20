@@ -20,10 +20,66 @@ struct Pedido {
 
 struct Solucao {
     vector<Pedido> pedidos;
+    vector<int> tempoAcumulado;
+    vector<int> multaPorPedido;
     int multaSolucao = 0;
 
     Solucao() : multaSolucao(0) {}
     Solucao(const vector<Pedido> &pedidos, int multa) : pedidos(pedidos), multaSolucao(multa) {}
+
+    void atualizarPedido(int indice, const vector<vector<int>> &s){
+        if(indice == 0){
+            tempoAcumulado[indice] = s[0][pedidos[indice].id] + pedidos[indice].tempo_producao;
+        } else {
+            tempoAcumulado[indice] = tempoAcumulado[indice - 1] + s[pedidos[indice - 1].id][pedidos[indice].id] + pedidos[indice].tempo_producao;
+        }
+
+        if(tempoAcumulado[indice] > pedidos[indice].prazo){
+            int atrazo = tempoAcumulado[indice] - pedidos[indice].prazo;    
+            multaPorPedido[indice] = atrazo * pedidos[indice].multa;
+        } else {
+            multaPorPedido[indice] = 0;
+        }
+    }
+
+    void calcularMultaOpt(const vector<vector<int>> &s){
+        multaSolucao = 0;
+        for (int i = 0; i < pedidos.size(); ++i) {
+            atualizarPedido(i, s);
+            multaSolucao += multaPorPedido[i];
+        }
+    }
+
+    void multaParaTrocas(int i, int j, const vector<vector<int>> &s){
+        if (i > j) std::swap(i, j);
+        std::swap(pedidos[i], pedidos[j]);
+
+        multaSolucao -= multaPorPedido[i] + multaPorPedido[j];
+
+        if (i > 0) atualizarPedido(i - 1, s);
+        atualizarPedido(i, s);
+        if (j > 0 && j != i + 1) atualizarPedido(j - 1, s);
+        atualizarPedido(j, s);
+
+        multaSolucao += multaPorPedido[i] + multaPorPedido[j];
+    }
+
+    double multaParaTrocasTeste(int i, int j, const vector<vector<int>> &s){
+        double multa = multaSolucao;
+        if (i > j) std::swap(i, j);
+        std::swap(pedidos[i], pedidos[j]);
+
+        multa -= multaPorPedido[i] + multaPorPedido[j];
+
+        if (i > 0) atualizarPedido(i - 1, s);
+        atualizarPedido(i, s);
+        if (j > 0 && j != i + 1) atualizarPedido(j - 1, s);
+        atualizarPedido(j, s);
+        
+        multa += multaPorPedido[i] + multaPorPedido[j];
+       
+        return multa;
+    }
 
     void calcularMulta(const vector<vector<int>> &s) {
         multaSolucao = 0;
@@ -39,7 +95,7 @@ struct Solucao {
 
         for (int i = 1; i < pedidos.size(); i++) {
             // adiciona o tempo de setup entre o pedido anterior e o atual
-            tempo_atual += s[pedidos[i - 1].id + 1][pedidos[i].id];
+            tempo_atual += s[pedidos[i - 1].id][pedidos[i].id];
             tempo_atual += pedidos[i].tempo_producao;
 
             if (tempo_atual > pedidos[i].prazo) {
