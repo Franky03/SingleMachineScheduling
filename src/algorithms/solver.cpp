@@ -81,13 +81,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, 
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
-        // calcular o tempo que leva pra fazer a construção em milisegundos
-        auto start = std::chrono::high_resolution_clock::now();
         novaSolucao = *Construcao(&melhorSolucao, s, 0.10);
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> elapsed = end - start;
-        double duration = elapsed.count() * 1000;
-        std::cout << "Tempo de construção: " << duration << "ms" << std::endl;
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
