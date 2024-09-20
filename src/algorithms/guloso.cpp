@@ -7,7 +7,7 @@ Solucao *Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, do
 
     while(!naoAlocados.empty()){
         std::sort(naoAlocados.begin(), naoAlocados.end(), [](const Pedido& a, const Pedido& b) {
-            return (a.prazo - a.tempo_producao) / a.multa < (b.prazo - b.tempo_producao) / b.multa;
+            return a.multa > b.multa;
         });
 
         int rclSize = std::max(1, static_cast<int>(naoAlocados.size() * alpha));
@@ -16,7 +16,6 @@ Solucao *Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, do
         Pedido pedidoEscolhido = naoAlocados[indexEscolhido];
         solucao->pedidos.push_back(pedidoEscolhido);
         naoAlocados.erase(naoAlocados.begin() + indexEscolhido);
-
     }
 
     solucao->calcularMulta(s);  
@@ -26,7 +25,7 @@ Solucao *Construcao(Solucao* solucao, const std::vector<std::vector<int>>& s, do
 Solucao* gulosao(Solucao* solucao, const std::vector<std::vector<int>>& s) {
     
     std::sort(solucao->pedidos.begin(), solucao->pedidos.end(), [](const Pedido& a, const Pedido& b) {
-        return (a.prazo - a.tempo_producao) / a.multa < (b.prazo - b.tempo_producao) / b.multa;
+        return a.prazo < b.prazo;
     });
 
     solucao->calcularMulta(s);

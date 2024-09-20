@@ -6,17 +6,63 @@
 #include <fstream>
 #include <iomanip>
 #include <sstream>
-#include <filesystem>
+#include <filesystem> 
+#include <unordered_map>
+#include <numeric>
+#include <algorithm>
 
+namespace fs = std::filesystem;
 
-std::string getCurrentDateTime() {
-    auto now = std::chrono::system_clock::now();
-    std::time_t time_now = std::chrono::system_clock::to_time_t(now);
-    std::tm* now_tm = std::localtime(&time_now);
+double calcularGap(double optimal, double found){
+    return ((found - optimal) / optimal) * 100;
+}
 
-    std::ostringstream oss;
-    oss << std::put_time(now_tm, "%Y-%m-%d_%H-%M-%S");  // Formato: YYYY-MM-DD_HH-MM-SS
-    return oss.str();
+std::pair<double, double> rodarAlgoritmo(Solucao& solucao, std::vector<std::vector<int>>& s){
+    auto start = std::chrono::high_resolution_clock::now();
+    solucao.calcularMulta(s);
+    SimulatedAnnealing(solucao, s);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed_seconds = end - start;
+
+    return {solucao.multaSolucao, elapsed_seconds.count()};
+}
+
+void rodarExperimento(Solucao& solucao, std::vector<std::vector<int>>& s, const double valorOtimo, int numExecucoes, const std::string& instanceName){
+    std::vector<double> resultadosMulta;
+    std::vector<double> temposExecucao;
+
+    for (int i = 0; i < numExecucoes; i++){
+        auto [multa, tempo] = rodarAlgoritmo(solucao, s);
+        resultadosMulta.push_back(multa);
+        temposExecucao.push_back(tempo);
+    }
+
+    double mediaMulta = std::accumulate(resultadosMulta.begin(), resultadosMulta.end(), 0.0) / numExecucoes;
+    double mediaTempo = std::accumulate(temposExecucao.begin(), temposExecucao.end(), 0.0) / numExecucoes;
+
+    double melhorMulta = *std::min_element(resultadosMulta.begin(), resultadosMulta.end());
+
+    double gap = calcularGap(valorOtimo, melhorMulta);
+
+    std::string nomeArquivo = "../results/" + instanceName + "_resultados.txt";
+    std::ofstream arquivoResultado(nomeArquivo);
+
+    if (arquivoResultado.is_open()) {
+        arquivoResultado << "Resultados para a instância: " << instanceName << "\n\n";
+        arquivoResultado << "Número de execuções: " << numExecucoes << "\n";
+        arquivoResultado << "Valor ótimo: " << valorOtimo << "\n";
+        arquivoResultado << "Média da multa: " << mediaMulta << "\n";
+        arquivoResultado << "Melhor multa: " << melhorMulta << "\n";
+        arquivoResultado << "Média do tempo de execução: " << mediaTempo << " segundos\n";
+        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
+
+        arquivoResultado.close();
+        std::cout << "Resultados salvos em: " << nomeArquivo << std::endl;
+    } else {
+        std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
+    }
+
 }
 
 int main(){
@@ -25,40 +71,34 @@ int main(){
     vector<vector<int>> s;
     Solucao solucao;
 
-    readInstance("../data/instancia_precisa_50.txt", num_pedidos, solucao.pedidos, s);
-    solucao.calcularMulta(s);
+    std::unordered_map<std::string, double> optimal_values;
+    std::string key;
+    double value;
+    std::ifstream optimalValuesFile("../data/optimal_values.txt");
 
-    std::string timestamp = getCurrentDateTime();
-    std::string logFileName = "../logs/execution_log_" + timestamp + ".txt";
+    while(optimalValuesFile >> key >> value){
+        optimal_values[key] = value;
+    }
 
-    std::ofstream logFile(logFileName);
+    optimalValuesFile.close();
+
+    std::string instancesPath = "../instances/";
+
+    int numExecucoes = 1;
+
+    for(const auto& entry : fs::directory_iterator(instancesPath)){
+        std::string instancePath = instancesPath + entry.path().filename().string();
+        std::string instanceName = entry.path().stem().string(); // nome do arquivo sem a extensão
+        readInstance(instancePath, num_pedidos, solucao.pedidos, s);
+
+        std::cout << "Instância: " << instanceName << std::endl;
+        
+        double valorOtimo = optimal_values[instanceName];
+
+        rodarExperimento(solucao, s, valorOtimo, numExecucoes, instanceName);
+    }
+
     
-    if (!logFile.is_open()) {
-        std::cerr << "Erro ao abrir o arquivo de log" << std::endl;
-        return 1;
-    }
-
-    logFile << "Multa inicial: " << solucao.multaSolucao << std::endl;
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    //SimulatedAnnealing(solucao, s);
-    ILS(solucao, s);
-
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed_seconds = end - start;
-
-
-    logFile << "Ordem final dos pedidos: ";
-    for (const auto& pedido : solucao.pedidos) {
-        logFile << pedido.id << " ";
-    }
-    logFile << std::endl;
-
-    logFile << "Multa final: " << solucao.multaSolucao << std::endl;
-    logFile << "Tempo de execução: " << elapsed_seconds.count() << " segundos" << std::endl;
-
-    logFile.close();
 
     return 0;
     

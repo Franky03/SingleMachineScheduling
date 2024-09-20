@@ -2,10 +2,8 @@
 #include <algorithm>
 
 
-double calculateSwapDeltaMultaOpt(Solucao& solucao, std::vector<std::vector<int>>& s, int i, int j) {
-    // copiar a solucao original
-    Solucao temp_solucao = solucao;
-    double multa_atual = solucao.multaSolucao;
+double calculateSwapDeltaMultaOpt(Solucao temp_solucao, std::vector<std::vector<int>>& s, int i, int j) {
+    double multa_atual = temp_solucao.multaSolucao;
     std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
     temp_solucao.calcularMulta(s);
     return temp_solucao.multaSolucao - multa_atual;

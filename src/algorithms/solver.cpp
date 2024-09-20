@@ -44,8 +44,6 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
             metodos.erase(metodos.begin() + n);
         }
     }
-
-    std::cout << "Melhorou Swap: " << count << std::endl;
 }
 
 void DoubleBridge(Solucao &solucao){
@@ -77,7 +75,8 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
     Solucao novaSolucao;
 
     for (int i = 0; i < MAX_ITER; ++i) {
-        novaSolucao = *Construcao(&solucao, s, 0.25);  // Nova solução construída
+        novaSolucao = *Construcao(&solucao, s, 0.20);  // Nova solução construída
+
         Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
 
         int iterILS = 0;
@@ -89,14 +88,14 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
                 iterILS = 0;
             }
 
-            DoubleBridge(novaSolucao); 
+            DoubleBridge(novaSolucao);
+            novaSolucao.calcularMulta(s);
             iterILS++;
         }
 
         // Verifica se a melhor solução local é melhor que a global
         if (melhorLocal.multaSolucao < melhorSolucao.multaSolucao) {
             melhorSolucao = melhorLocal;
-            std::cout << "Melhorou ILS: " << melhorSolucao.multaSolucao << std::endl;
         }
     }
 
