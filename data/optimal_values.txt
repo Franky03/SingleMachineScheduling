@@ -14,4 +14,3 @@ n60M 516926
 n60N 492572
 n60O 527459
 n60P 396183
-instancia_precisa_50 0

@@ -9,8 +9,8 @@
 #include <queue>
 #include <unordered_set>
 
-#define MAX_ITER 200
-#define MAX_ITER_ILS 150
+#define MAX_ITER 150
+#define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 5
 #define MAX_ITER_SEM_MELHORA 50
@@ -80,7 +80,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, 
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
-        novaSolucao = *Construcao(&melhorSolucao, s, 0.50);
+        novaSolucao = *Construcao(&melhorSolucao, s, 0.10);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -91,7 +91,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, 
                 melhorLocal = novaSolucao;  
                 iterILS = 0;
             }
-
 
             DoubleBridge(novaSolucao);
             novaSolucao.calcularMulta(s);
