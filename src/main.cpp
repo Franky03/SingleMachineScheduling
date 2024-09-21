@@ -14,6 +14,7 @@
 namespace fs = std::filesystem;
 
 double calcularGap(double optimal, double found){
+    if (optimal == 0) return 0;
     return ((found - optimal) / optimal) * 100;
 }
 

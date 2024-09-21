@@ -13,6 +13,7 @@ struct Pedido {
     int prazo;
     int multa;
     int id;
+    double multaPedido;
 };
 
 struct Solucao {
@@ -45,7 +46,7 @@ struct Solucao {
                 multaSolucao += atraso * pedidos[i].multa;
             }
         }
-    }
+    }    
     
 };
 

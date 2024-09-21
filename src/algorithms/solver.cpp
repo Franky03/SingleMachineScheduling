@@ -9,12 +9,13 @@
 #include <queue>
 #include <unordered_set>
 #include <chrono>
+#include <algorithm>
 
 #define MAX_ITER 150
 #define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 50
+#define MAX_ITER_SEM_MELHORA 25
 
 std::mutex mtx;
 
@@ -51,6 +52,9 @@ void BuscaLocal(Solucao& solucao){
     }
 }
 
+void EmbaralhaPedidos(Solucao &solucao){
+    std::random_shuffle(solucao.pedidos.begin(), solucao.pedidos.end());
+}
 
 void DoubleBridge(Solucao &solucao){
     int n = solucao.pedidos.size();
@@ -81,8 +85,16 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
-        novaSolucao = *Construcao(&melhorSolucao, 0.10);
+        
+        if (stop.load()) {
+            break;
+        }
+
+        novaSolucao = *Construcao(&melhorSolucao, 0.80);
         Solucao melhorLocal = novaSolucao; 
+
+        double temperatura = 1e5;
+        double alpha = 0.95;
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
@@ -93,7 +105,21 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 iterILS = 0;
             }
 
-            DoubleBridge(novaSolucao);
+            if (melhorLocal.multaSolucao == 0) {
+                std::lock_guard<std::mutex> lock(stopMtx);
+                stop.store(true);
+                break;
+            }
+            
+            if (std::exp(-novaSolucao.multaSolucao / temperatura) > ((double) rand() / (RAND_MAX))) {
+                EmbaralhaPedidos(novaSolucao);
+            }
+            else {
+                DoubleBridge(novaSolucao);
+            }
+
+            temperatura *= alpha;
+            
             iterILS++;
         }
 
@@ -106,8 +132,13 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
             }
         }
-    }
 
+        if (melhorSolucaoGlobal.multaSolucao == 0) {
+            stop.store(true); 
+            break;  
+        }
+    }
+    
 }
 
 void ILS_Opt(Solucao& solucao) {
@@ -115,6 +146,8 @@ void ILS_Opt(Solucao& solucao) {
     int iterPerThread = MAX_ITER / numThreads;
     
     Solucao melhorSolucao = solucao;
+
+    stop.store(false);
 
     std::vector<std::thread> threads;
     for (int t = 0; t < numThreads; ++t) {

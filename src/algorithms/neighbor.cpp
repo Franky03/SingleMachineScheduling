@@ -1,7 +1,6 @@
 #include "neighbor.h"
 #include <algorithm>
 
-
 double calculateSwapDeltaMultaOpt(Solucao temp_solucao, int i, int j) {
     double multa_atual = temp_solucao.multaSolucao;
     std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
