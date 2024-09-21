@@ -9,10 +9,10 @@
 // 2. Inserção de um pedido em uma posição diferente (insert)
 // 3. Reversão de sub-sequência de pedidos (2-opt)
 
-bool bestImprovementSwap(Solucao& solucao, std::vector<std::vector<int>>& s);
-bool bestImprovementInsert(Solucao& solucao, std::vector<std::vector<int>>& s);
-bool bestImprovement2opt(Solucao& solucao, std::vector<std::vector<int>>& s); 
-bool bestImprovementKOpt(Solucao& solucao, std::vector<std::vector<int>>& s, int k);
+bool bestImprovementSwap(Solucao& solucao);
+bool bestImprovementInsert(Solucao& solucao);
+bool bestImprovement2opt(Solucao& solucao); 
+bool bestImprovementKOpt(Solucao& solucao, int k);
 
 
 #endif // VIZINHANCA_H

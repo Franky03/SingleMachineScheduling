@@ -17,11 +17,11 @@ double calcularGap(double optimal, double found){
     return ((found - optimal) / optimal) * 100;
 }
 
-std::pair<double, double> rodarAlgoritmo(Solucao& solucao, std::vector<std::vector<int>>& s){
+std::pair<double, double> rodarAlgoritmo(Solucao& solucao){
     auto start = std::chrono::high_resolution_clock::now();
-    solucao.calcularMulta(s);
-    //SimulatedAnnealing(solucao, s);
-    ILS_Opt(solucao, s);
+    solucao.calcularMulta();
+
+    ILS_Opt(solucao);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -29,12 +29,12 @@ std::pair<double, double> rodarAlgoritmo(Solucao& solucao, std::vector<std::vect
     return {solucao.multaSolucao, elapsed_seconds.count()};
 }
 
-void rodarExperimento(Solucao& solucao, std::vector<std::vector<int>>& s, const double valorOtimo, int numExecucoes, const std::string& instanceName){
+void rodarExperimento(Solucao& solucao, const double valorOtimo, int numExecucoes, const std::string& instanceName){
     std::vector<double> resultadosMulta;
     std::vector<double> temposExecucao;
 
     for (int i = 0; i < numExecucoes; i++){
-        auto [multa, tempo] = rodarAlgoritmo(solucao, s);
+        auto [multa, tempo] = rodarAlgoritmo(solucao);
         resultadosMulta.push_back(multa);
         temposExecucao.push_back(tempo);
     }
@@ -69,7 +69,6 @@ void rodarExperimento(Solucao& solucao, std::vector<std::vector<int>>& s, const 
 int main(){
     
     int num_pedidos;
-    vector<vector<int>> s;
     Solucao solucao;
 
     std::unordered_map<std::string, double> optimal_values;
@@ -90,13 +89,13 @@ int main(){
     for(const auto& entry : fs::directory_iterator(instancesPath)){
         std::string instancePath = instancesPath + entry.path().filename().string();
         std::string instanceName = entry.path().stem().string(); // nome do arquivo sem a extensão
-        readInstance(instancePath, num_pedidos, solucao.pedidos, s);
+        readInstance(instancePath, num_pedidos, solucao.pedidos, solucao.s);
 
         std::cout << "Instância: " << instanceName << std::endl;
         
         double valorOtimo = optimal_values[instanceName];
 
-        rodarExperimento(solucao, s, valorOtimo, numExecucoes, instanceName);
+        rodarExperimento(solucao, valorOtimo, numExecucoes, instanceName);
     }
 
     

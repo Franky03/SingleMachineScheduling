@@ -21,7 +21,7 @@ std::mutex mtx;
 std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
-void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
+void BuscaLocal(Solucao& solucao){
     std::vector<int> metodos = {0,1,2};
     bool melhorou = false;
     int count = 0;
@@ -30,16 +30,16 @@ void BuscaLocal(Solucao& solucao, std::vector<std::vector<int>>& s){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementSwap(solucao, s);
+                melhorou = bestImprovementSwap(solucao);
                 if(melhorou) count++;
                 break;
             case 1:
                 //std::cout<< "Insert Movement\n" << std::endl;
-                melhorou = bestImprovementInsert(solucao, s);
+                melhorou = bestImprovementInsert(solucao);
                 break;
             case 2:
                 //std::cout<< "2-opt Movement\n" << std::endl;
-                melhorou = bestImprovement2opt(solucao, s);
+                melhorou = bestImprovement2opt(solucao);
                 break;
         }
 
@@ -76,17 +76,17 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
 }
 
-void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, int iterStart, int iterEnd) {
+void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
     Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
-        novaSolucao = *Construcao(&melhorSolucao, s, 0.10);
+        novaSolucao = *Construcao(&melhorSolucao, 0.10);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
-            BuscaLocal(novaSolucao, s);
+            BuscaLocal(novaSolucao);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  
@@ -94,7 +94,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, 
             }
 
             DoubleBridge(novaSolucao);
-            novaSolucao.calcularMulta(s);
             iterILS++;
         }
 
@@ -111,7 +110,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, std::vector<std::vector<int>>& s, 
 
 }
 
-void ILS_Opt(Solucao& solucao, std::vector<std::vector<int>>& s) {
+void ILS_Opt(Solucao& solucao) {
     const int numThreads = 4;
     int iterPerThread = MAX_ITER / numThreads;
     
@@ -121,7 +120,7 @@ void ILS_Opt(Solucao& solucao, std::vector<std::vector<int>>& s) {
     for (int t = 0; t < numThreads; ++t) {
         int iterStart = t * iterPerThread;
         int iterEnd = (t == numThreads - 1) ? MAX_ITER : iterStart + iterPerThread;
-        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), std::ref(s), iterStart, iterEnd);
+        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), iterStart, iterEnd);
     }
 
     for (auto& th : threads) {
@@ -133,20 +132,20 @@ void ILS_Opt(Solucao& solucao, std::vector<std::vector<int>>& s) {
 
 
 
-void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
+void ILS(Solucao &solucao) {
     Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
     Solucao novaSolucao;
 
     double temperatura = 1e5;
 
     for (int i = 0; i < MAX_ITER; ++i) {
-        novaSolucao = *Construcao(&solucao, s, 0.20);  // Nova solução construída
+        novaSolucao = *Construcao(&solucao, 0.20);  // Nova solução construída
 
         Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
-            BuscaLocal(novaSolucao, s);
+            BuscaLocal(novaSolucao);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  // Cópia da nova solução como a melhor local
@@ -154,7 +153,7 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
             }
 
             DoubleBridge(novaSolucao);
-            novaSolucao.calcularMulta(s);
+            novaSolucao.calcularMulta();
             iterILS++;
         }
 
@@ -168,7 +167,7 @@ void ILS(Solucao &solucao, std::vector<std::vector<int>>& s) {
     solucao = melhorSolucao;  // Atualiza a solução final
 }
 
-void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::vector<std::vector<int>>& s, std::ofstream& outputFile, std::atomic<int>& iter){
+void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::ofstream& outputFile, std::atomic<int>& iter){
     for (int i = L_start; i < L_end; ++i){
 
         {
@@ -176,7 +175,7 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
         }
 
         Solucao novaSolucao = atualSolucao;
-        BuscaLocal(novaSolucao, s);
+        BuscaLocal(novaSolucao);
         double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
 
         {
@@ -204,10 +203,10 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
     }
 }
 
-void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
+void SimulatedAnnealing(Solucao &solucao) {
     srand(static_cast<unsigned int>(time(0)));
 
-    Solucao atualSolucao = *gulosao(&solucao, s);
+    Solucao atualSolucao = *gulosao(&solucao);
     Solucao melhorSolucao = atualSolucao;
 
     double temperaturaInicial = 1e5;
@@ -232,7 +231,7 @@ void SimulatedAnnealing(Solucao &solucao, std::vector<std::vector<int>>& s) {
                     MarkovChains, 
                     t, L_start, L_end, 
                     std::ref(atualSolucao), std::ref(melhorSolucao), 
-                    temperatura, std::ref(s), std::ref(outputFile), 
+                    temperatura, std::ref(outputFile), 
                     std::ref(iter)
                 )
             );
