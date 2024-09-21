@@ -33,6 +33,46 @@ bool bestImprovementSwap(Solucao& solucao){
     return false;
 }
 
+void swapKBlocos(Solucao& solucao, int i, int j, int k) {
+    for (int l = 0; l < k; l++) {
+        std::swap(solucao.pedidos[i + l], solucao.pedidos[j + l]);
+    }
+}
+
+double calculateSwapDeltaMultaK(Solucao temp_solucao, int i, int j, int k) {
+    double multa_atual = temp_solucao.multaSolucao;
+    swapKBlocos(temp_solucao, i, j, k);
+    temp_solucao.calcularMulta();
+    return temp_solucao.multaSolucao - multa_atual;
+}
+
+
+bool bestImprovementSwapK(Solucao& solucao, int k){
+    double bestDeltaMulta = 0;
+    int best_i, best_j;
+
+    for (int i = 0; i <= solucao.pedidos.size() - k; i++) {
+        for (int j = i + k; j <= solucao.pedidos.size() - k; j++) {
+            double delta_multa = calculateSwapDeltaMultaK(solucao, i, j, k);
+            
+            if (delta_multa < bestDeltaMulta) {
+                bestDeltaMulta = delta_multa;
+                best_i = i;
+                best_j = j;
+            }
+        }
+    }
+
+    if (bestDeltaMulta < 0) {
+        swapKBlocos(solucao, best_i, best_j, k);
+        solucao.calcularMulta();
+        return true;
+    }
+
+    return false;
+
+}
+
 bool bestImprovementKOpt(Solucao& solucao, int k){
     double bestDeltaMulta = 0;
     int best_i, best_j;

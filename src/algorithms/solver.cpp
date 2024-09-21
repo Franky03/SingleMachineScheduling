@@ -23,7 +23,7 @@ std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao){
-    std::vector<int> metodos = {0,1,2};
+    std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
     int count = 0;
 
@@ -31,21 +31,22 @@ void BuscaLocal(Solucao& solucao){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementSwap(solucao);
+                melhorou = bestImprovementSwapK(solucao, 1 + rand() % 3);
                 if(melhorou) count++;
                 break;
             case 1:
-                //std::cout<< "Insert Movement\n" << std::endl;
                 melhorou = bestImprovementInsert(solucao);
                 break;
             case 2:
-                //std::cout<< "2-opt Movement\n" << std::endl;
                 melhorou = bestImprovement2opt(solucao);
+                break;
+            case 3:
+                melhorou = bestImprovementSwap(solucao);
                 break;
         }
 
         if(melhorou){
-            metodos = {0,1,2};
+            metodos = {0,1,2,3};
         } else {
             metodos.erase(metodos.begin() + n);
         }
