@@ -2,7 +2,14 @@ Resultados para a instância: n60F
 
 Número de execuções: 1
 Valor ótimo: 93045
+<<<<<<< Updated upstream
 Média da multa: 103705
 Melhor multa: 103705
 Média do tempo de execução: 309.194 segundos
 Gap em relação ao valor ótimo: 11.4568
+=======
+Média da multa: 97776
+Melhor multa: 97776
+Média do tempo de execução: 429.888 segundos
+Gap em relação ao valor ótimo: 5.08464
+>>>>>>> Stashed changes
