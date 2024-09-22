@@ -84,6 +84,8 @@ void DoubleBridge(Solucao &solucao){
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
     Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
     Solucao novaSolucao;
+    int ct = 0;
+    int em = 0;
 
     for (int i = iterStart; i < iterEnd; ++i) {
         
@@ -93,9 +95,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
 
         novaSolucao = *Construcao(&melhorSolucao, 0.80);
         Solucao melhorLocal = novaSolucao; 
-
-        double temperatura = 1e5;
-        double alpha = 0.95;
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
@@ -111,15 +110,15 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 stop.store(true);
                 break;
             }
-            
-            if (std::exp(-novaSolucao.multaSolucao / temperatura) > ((double) rand() / (RAND_MAX))) {
-                EmbaralhaPedidos(novaSolucao);
+            // gerar um número aleatório entre 0 e 1, se for menor que 0.5, embaralha os pedidos, senão, aplica o DoubleBridge
+            if ((double) rand() / RAND_MAX <= 0.5) {
+                DoubleBridge(novaSolucao);
+                ct++;
             }
             else {
-                DoubleBridge(novaSolucao);
+                EmbaralhaPedidos(novaSolucao);
+                em++;
             }
-
-            temperatura *= alpha;
             
             iterILS++;
         }
@@ -139,7 +138,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             break;  
         }
     }
-    
+    std::cout << "Embaralhar: " << em << " - DoubleBridge: " << ct << std::endl;
 }
 
 void ILS_Opt(Solucao& solucao) {
