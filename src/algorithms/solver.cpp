@@ -15,7 +15,7 @@
 #define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 25
+#define MAX_ITER_SEM_MELHORA 50
 
 std::mutex mtx;
 
@@ -84,8 +84,6 @@ void DoubleBridge(Solucao &solucao){
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
     Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
     Solucao novaSolucao;
-    int ct = 0;
-    int em = 0;
 
     for (int i = iterStart; i < iterEnd; ++i) {
         
@@ -111,13 +109,11 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 break;
             }
             // gerar um número aleatório entre 0 e 1, se for menor que 0.5, embaralha os pedidos, senão, aplica o DoubleBridge
-            if ((double) rand() / RAND_MAX <= 0.5) {
-                DoubleBridge(novaSolucao);
-                ct++;
+            if (iterILS % MAX_ITER_SEM_MELHORA == 0) {
+                EmbaralhaPedidos(novaSolucao);
             }
             else {
-                EmbaralhaPedidos(novaSolucao);
-                em++;
+                DoubleBridge(novaSolucao);
             }
             
             iterILS++;
@@ -138,7 +134,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             break;  
         }
     }
-    std::cout << "Embaralhar: " << em << " - DoubleBridge: " << ct << std::endl;
 }
 
 void ILS_Opt(Solucao& solucao) {
