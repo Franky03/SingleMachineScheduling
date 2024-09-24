@@ -13,6 +13,6 @@ bool bestImprovementSwap(Solucao& solucao);
 bool bestImprovementInsert(Solucao& solucao);
 bool bestImprovement2opt(Solucao& solucao); 
 bool bestImprovementSwapK(Solucao& solucao, int k);
-
+bool bestImprovementReinsertion(Solucao& solucao, int k);
 
 #endif // VIZINHANCA_H

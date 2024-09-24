@@ -24,7 +24,7 @@ std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao){
-    std::vector<int> metodos = {0,1,2,3};
+    std::vector<int> metodos = {0,1,2};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -37,15 +37,13 @@ void BuscaLocal(Solucao& solucao){
                 melhorou = bestImprovementInsert(solucao);
                 break;
             case 2:
-                melhorou = bestImprovement2opt(solucao);
-                break;
-            case 3:
                 melhorou = bestImprovementSwap(solucao);
                 break;
+            
         }
 
         if(melhorou){
-            metodos = {0,1,2,3};
+            metodos = {0,1,2};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -109,12 +107,8 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 break;
             }
 
-            if (iterILS % MAX_ITER_SEM_MELHORA == 0) {
-                EmbaralhaPedidos(novaSolucao);
-            }
-            else {
-                DoubleBridge(novaSolucao);
-            }
+            
+            EmbaralhaPedidos(novaSolucao);
             
             iterILS++;
         }

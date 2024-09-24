@@ -27,5 +27,5 @@ file(GLOB_RECURSE SRC_FILES
 
 # Adicionar o executável
 add_executable(opt ${SRC_FILES})
-
+target_compile_options(opt PRIVATE -O3)
 target_link_libraries(opt ${CMAKE_THREAD_LIBS_INIT})

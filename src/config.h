@@ -16,6 +16,8 @@ struct Pedido {
     double multaPedido;
 };
 
+
+
 struct Solucao {
     vector<Pedido> pedidos;
     int multaSolucao = 0;
