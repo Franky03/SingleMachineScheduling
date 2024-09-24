@@ -74,38 +74,6 @@ bool bestImprovementSwapK(Solucao& solucao, int k){
 
 }
 
-bool bestImprovementKOpt(Solucao& solucao, int k){
-    double bestDeltaMulta = 0;
-    int best_i, best_j;
-    
-    for (int i = 0; i < solucao.pedidos.size() - k; i++){
-        for (int j = i+k; j < solucao.pedidos.size(); j++){
-            // calcular a mudança incremental na multa
-            double multa_atual = solucao.multaSolucao;
-
-            Solucao temp_solucao = solucao;
-            std::reverse(temp_solucao.pedidos.begin() + i, temp_solucao.pedidos.begin() + j + 1);
-
-            temp_solucao.calcularMulta();
-
-            double delta_multa = temp_solucao.multaSolucao - multa_atual;
-            if (delta_multa < bestDeltaMulta) {
-                bestDeltaMulta = delta_multa;
-                best_i = i;
-                best_j = j;
-            }
-        }
-    }
-
-    if (bestDeltaMulta < 0) {
-        std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
-        solucao.calcularMulta();
-        return true;
-    }
-
-    return false;
-}
-
 bool bestImprovementInsert(Solucao& solucao){
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1;

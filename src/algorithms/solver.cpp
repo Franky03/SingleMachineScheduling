@@ -1,6 +1,7 @@
 #include "solver.h"
 #include <cmath>
 #include <cstdlib>  // Para rand()
+#include <random>   // Para std::mt19937
 #include <ctime>    // Para time()
 #include <fstream>  // Para escrever em arquivos
 #include <thread>
@@ -11,8 +12,8 @@
 #include <chrono>
 #include <algorithm>
 
-#define MAX_ITER 150
-#define MAX_ITER_ILS 200
+#define MAX_ITER 200
+#define MAX_ITER_ILS 400
 #define L 200
 #define NUM_THREADS 5
 #define MAX_ITER_SEM_MELHORA 50
@@ -25,14 +26,12 @@ std::atomic<bool> stop(false);
 void BuscaLocal(Solucao& solucao){
     std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
-    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
                 melhorou = bestImprovementSwapK(solucao, 1 + rand() % 3);
-                if(melhorou) count++;
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao);
@@ -54,7 +53,9 @@ void BuscaLocal(Solucao& solucao){
 }
 
 void EmbaralhaPedidos(Solucao &solucao){
-    std::random_shuffle(solucao.pedidos.begin(), solucao.pedidos.end());
+    static std::random_device rd;
+    static std::mt19937 g(rd());
+    std::shuffle(solucao.pedidos.begin(), solucao.pedidos.end(), g);
 }
 
 void DoubleBridge(Solucao &solucao){
@@ -104,11 +105,10 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             }
 
             if (melhorLocal.multaSolucao == 0) {
-                std::lock_guard<std::mutex> lock(stopMtx);
                 stop.store(true);
                 break;
             }
-            // gerar um número aleatório entre 0 e 1, se for menor que 0.5, embaralha os pedidos, senão, aplica o DoubleBridge
+
             if (iterILS % MAX_ITER_SEM_MELHORA == 0) {
                 EmbaralhaPedidos(novaSolucao);
             }
@@ -137,7 +137,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
 }
 
 void ILS_Opt(Solucao& solucao) {
-    const int numThreads = 4;
+    const int numThreads = std::thread::hardware_concurrency();
     int iterPerThread = MAX_ITER / numThreads;
     
     Solucao melhorSolucao = solucao;
