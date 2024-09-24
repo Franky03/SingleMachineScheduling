@@ -16,7 +16,7 @@
 #define MAX_ITER_ILS 400
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 50
+#define MAX_ITER_SEM_MELHORA 100
 
 std::mutex mtx;
 
@@ -31,7 +31,7 @@ void BuscaLocal(Solucao& solucao){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementSwapK(solucao, 1 + rand() % 3);
+                melhorou = bestImprovementSwapK(solucao, 2 + rand() % 3);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao);

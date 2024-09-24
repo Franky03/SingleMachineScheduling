@@ -27,7 +27,7 @@ bool bestImprovementSwap(Solucao& solucao){
 
     if (bestDeltaMulta < 0){
         std::swap(solucao.pedidos[best_i], solucao.pedidos[best_j]);
-        solucao.calcularMulta();
+        solucao.multaSolucao += bestDeltaMulta;
         return true;
     }
 
@@ -66,7 +66,7 @@ bool bestImprovementSwapK(Solucao& solucao, int k){
 
     if (bestDeltaMulta < 0) {
         swapKBlocos(solucao, best_i, best_j, k);
-        solucao.calcularMulta();
+        solucao.multaSolucao += bestDeltaMulta;
         return true;
     }
 
@@ -111,7 +111,7 @@ bool bestImprovementInsert(Solucao& solucao){
         Pedido pedido_j = solucao.pedidos[best_j];
         solucao.pedidos.erase(solucao.pedidos.begin() + best_j);
         solucao.pedidos.insert(solucao.pedidos.begin() + best_i, pedido_j);
-        solucao.calcularMulta();
+        solucao.multaSolucao += bestDeltaMulta;
         return true;
     }
 
@@ -144,7 +144,7 @@ bool bestImprovement2opt(Solucao& solucao){
 
     if (bestDeltaMulta < 0) {
         std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
-        solucao.calcularMulta();
+        solucao.multaSolucao += bestDeltaMulta;
         return true;
     }
 
