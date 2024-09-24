@@ -1,6 +1,7 @@
 #include "neighbor.h"
 #include <algorithm>
 
+
 double calculateSwapDeltaMultaOpt(Solucao temp_solucao, int i, int j) {
     double multa_atual = temp_solucao.multaSolucao;
     std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
@@ -175,55 +176,6 @@ bool bestImprovement2opt(Solucao& solucao){
 
     if (bestDeltaMulta < 0) {
         std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
-        solucao.calcularMulta();
-        return true;
-    }
-
-    return false;
-}
-
-bool bestImprovementOrOpt(Solucao& solucao, int tamanho_bloco) {
-    double bestDeltaMulta = 0;
-    int best_i = -1, best_j = -1;
-
-    for (int i = 0; i < solucao.pedidos.size() - tamanho_bloco; i++) {
-        for (int j = 0; j < solucao.pedidos.size(); j++) {
-            if (j >= i && j <= i + tamanho_bloco) {
-                // evita mover o bloco para dentro de si mesmo
-                continue;
-            }
-
-            // cria uma nova solução temporária
-            Solucao temp_solucao = solucao;
-
-            // remove a subsequência de tamanho_bloco da posição i
-            
-            std::vector<Pedido> subsequencia(temp_solucao.pedidos.begin() + i, temp_solucao.pedidos.begin() + i + tamanho_bloco);
-            temp_solucao.pedidos.erase(temp_solucao.pedidos.begin() + i, temp_solucao.pedidos.begin() + i + tamanho_bloco);
-
-            if (j > i) {
-                j -= tamanho_bloco;
-            }
-
-            // Insere a subsequência na posição j
-            temp_solucao.pedidos.insert(temp_solucao.pedidos.begin() + j, subsequencia.begin(), subsequencia.end());
-
-            // Recalcula a penalidade para a nova solução
-            temp_solucao.calcularMulta();
-            double delta_multa = temp_solucao.multaSolucao - solucao.multaSolucao;
-
-            if (delta_multa < bestDeltaMulta) {
-                bestDeltaMulta = delta_multa;
-                best_i = i;
-                best_j = j;
-            }
-        }
-    }
-
-    if (bestDeltaMulta < 0) {
-        std::vector<Pedido> subsequencia(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_i + tamanho_bloco);
-        solucao.pedidos.erase(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_i + tamanho_bloco);
-        solucao.pedidos.insert(solucao.pedidos.begin() + best_j, subsequencia.begin(), subsequencia.end());
         solucao.calcularMulta();
         return true;
     }

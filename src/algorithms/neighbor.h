@@ -12,7 +12,6 @@
 bool bestImprovementSwap(Solucao& solucao);
 bool bestImprovementInsert(Solucao& solucao);
 bool bestImprovement2opt(Solucao& solucao); 
-bool bestImprovementOrOpt(Solucao& solucao, int tamanho_bloco);
 bool bestImprovementSwapK(Solucao& solucao, int k);
 
 

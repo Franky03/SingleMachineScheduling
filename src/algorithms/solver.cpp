@@ -23,7 +23,7 @@ std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao){
-    std::vector<int> metodos = {0,1,2,3,4};
+    std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
     int count = 0;
 
@@ -43,13 +43,10 @@ void BuscaLocal(Solucao& solucao){
             case 3:
                 melhorou = bestImprovementSwap(solucao);
                 break;
-            case 4:
-                melhorou = bestImprovementOrOpt(solucao, 2+rand()%3);
-                break;
         }
 
         if(melhorou){
-            metodos = {0,1,2,3,4};
+            metodos = {0,1,2,3};
         } else {
             metodos.erase(metodos.begin() + n);
         }
