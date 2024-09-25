@@ -52,7 +52,6 @@ void BuscaLocal(Solucao& solucao){
         } else {
             metodos.erase(metodos.begin() + n);
         }
-        std::cout << "Melhorou: " << count << std::endl;
     }
     
 }
@@ -129,8 +128,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
             }
-
-            std::cout << "Terminei a iteração " << i << std::endl;
            
         }
 

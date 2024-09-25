@@ -33,7 +33,7 @@ void BuscaLocal(Solucao& solucao){
                 break;
             }
             case 1:
-                melhorou = bestImprovementInsert(solucao);
+                melhorou = bestImprovementReinsertion(solucao);
                 break;
             case 2:
                 melhorou = bestImprovement2opt(solucao);
