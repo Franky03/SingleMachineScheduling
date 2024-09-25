@@ -83,7 +83,7 @@ int main(){
 
     optimalValuesFile.close();
 
-    std::string instancesPath = "../instances/";
+    std::string instancesPath = "../tests/";
 
     int numExecucoes = 1;
 

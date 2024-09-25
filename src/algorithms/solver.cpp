@@ -16,7 +16,7 @@
 #define MAX_ITER_ILS 400
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 100
+#define MAX_ITER_SEM_MELHORA 50
 
 std::mutex mtx;
 
@@ -26,6 +26,7 @@ std::atomic<bool> stop(false);
 void BuscaLocal(Solucao& solucao){
     std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
+    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
@@ -45,10 +46,14 @@ void BuscaLocal(Solucao& solucao){
         }
 
         if(melhorou){
+            count++;
             metodos = {0,1,2,3};
         } else {
             metodos.erase(metodos.begin() + n);
         }
+    }
+    if(count > 0){
+        std::cout << "Melhorou " << count << " vezes" << std::endl;
     }
 }
 
@@ -97,7 +102,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
-            
+
             BuscaLocal(novaSolucao);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
@@ -110,12 +115,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 break;
             }
 
-            if(iterILS % MAX_ITER_SEM_MELHORA == 0){
-                EmbaralhaPedidos(novaSolucao);
-            } else {
-                DoubleBridge(novaSolucao);
-            }
-
+            EmbaralhaPedidos(novaSolucao);
             novaSolucao.calcularMulta();
             
             iterILS++;
@@ -126,9 +126,11 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             std::lock_guard<std::mutex> lock(mtx);  // trava o mutex durante a comparação
             if (melhorLocal.multaSolucao < melhorSolucaoGlobal.multaSolucao) {
                 melhorSolucaoGlobal = melhorLocal;
-                std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
+                 std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
             }
+
+           
         }
 
         if (melhorSolucaoGlobal.multaSolucao == 0) {

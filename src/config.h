@@ -49,6 +49,66 @@ struct Solucao {
             }
         }
     }    
+
+
+    double atualizarMulta(int posicaoInicio){
+        double multaAtual = multaSolucao;
+        double novaMulta = 0;
+        int tempo_atual = 0;
+
+        if(posicaoInicio == 0){
+            tempo_atual += s[0][pedidos[0].id];
+            tempo_atual += pedidos[0].tempo_producao;
+
+            if (tempo_atual > pedidos[0].prazo) {
+                int atraso = tempo_atual - pedidos[0].prazo;
+                novaMulta += atraso * pedidos[0].multa;
+            }
+        }
+
+        for (size_t i = posicaoInicio; i < pedidos.size() - 1; ++i) {
+            // adiciona o tempo de setup entre o pedido anterior e o atual
+            tempo_atual += s[pedidos[i - 1].id][pedidos[i].id];
+            tempo_atual += pedidos[i].tempo_producao;
+
+            if (tempo_atual > pedidos[i].prazo) {
+                int atraso = tempo_atual - pedidos[i].prazo;
+                novaMulta += atraso * pedidos[i].multa;
+            }
+        }
+
+        multaAtual -= calcularMultaParcial(posicaoInicio);
+        multaAtual += novaMulta;
+
+        return multaAtual;
+    }
+
+    double calcularMultaParcial(int posicaoInicio) const {
+        double multaParcial = 0;
+
+        int tempo_atual = 0;
+
+        if(posicaoInicio == 0){
+            tempo_atual += s[0][pedidos[0].id];
+            tempo_atual += pedidos[0].tempo_producao;
+
+            if (tempo_atual > pedidos[0].prazo) {
+                int atraso = tempo_atual - pedidos[0].prazo;
+                multaParcial += atraso * pedidos[0].multa;
+            }
+        }
+
+        for (size_t i = posicaoInicio; i < pedidos.size() - 1; ++i) {
+            tempo_atual += s[pedidos[i - 1].id][pedidos[i].id];
+            tempo_atual += pedidos[i].tempo_producao;
+
+            if (tempo_atual > pedidos[i].prazo) {
+                int atraso = tempo_atual - pedidos[i].prazo;
+                multaParcial += atraso * pedidos[i].multa;
+            }
+        }
+        return multaParcial;
+    }
     
 };
 
