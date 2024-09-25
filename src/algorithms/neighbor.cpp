@@ -18,8 +18,8 @@ double calculateSwapDeltaMultaK(Solucao &temp_solucao, int i, int j, int k) {
 
 double InferenciaDeltaMultaSwap(Solucao& solucao, int i, int j, int k=1){
     // calcula a multa atual para os pedidos i até o pedido i+5
-    double multa_atual = i = 0 ? 0 : solucao.multaPedidos[i - 1];
-    int tempoAnterior = i == 0 ? 0 : solucao.tempoAcumulado[i - 1];
+    double multa_atual = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
+    int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1];
     int tempo_atual = tempoAnterior;
     int final_i = i + 5 > solucao.pedidos.size() ? solucao.pedidos.size() : i + 5;
     for (int l = i; l < final_i; l++) {
@@ -33,15 +33,16 @@ double InferenciaDeltaMultaSwap(Solucao& solucao, int i, int j, int k=1){
         if (tempo_atual > solucao.pedidos[l].prazo) {
             int atraso = tempo_atual - solucao.pedidos[l].prazo;
             multa_atual += atraso * solucao.pedidos[l].multa;
+            
         }
     }
-
+    
     // faz o swap
     swapKBlocos(solucao, i, j, k);
 
     tempo_atual = tempoAnterior;
 
-    double multa_depois = i == 0 ? 0 : solucao.multaPedidos[i - 1];
+    double multa_depois = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
 
     for (int l = i; l < final_i; l++) {
         if(l == 0){
@@ -134,8 +135,8 @@ void insertKBlocos(Solucao& solucao, int i, int j, int k=1){
 
 
 double InferenciaDeltaMultaInsert(Solucao &solucao, int i, int j, int k = 1) {
-    double multa_atual = i == 0 ? 0 : solucao.multaPedidos[i - 1];
-    int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1];  // Corrigir para i == 0
+    double multa_atual = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
+    int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1]; 
     int tempo_atual = tempoAnterior;
     int final_i = i + 5 > solucao.pedidos.size() ? solucao.pedidos.size() : i + 5;
 
@@ -156,7 +157,7 @@ double InferenciaDeltaMultaInsert(Solucao &solucao, int i, int j, int k = 1) {
     insertKBlocos(solucao, i, j, k);
 
     tempo_atual = tempoAnterior;
-    double multa_depois = i == 0 ? 0 : solucao.multaPedidos[i - 1];
+    double multa_depois = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
 
     for (int l = i; l < final_i; l++) {
         if (l == 0) {
