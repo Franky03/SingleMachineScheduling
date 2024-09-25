@@ -17,6 +17,7 @@
 #define L 200
 #define NUM_THREADS 5
 #define MAX_ITER_SEM_MELHORA 50
+#define MAX_LOCAL_SEARCH 100
 
 std::mutex mtx;
 
@@ -44,7 +45,7 @@ void BuscaLocal(Solucao& solucao){
                 melhorou = bestImprovementSwapK(solucao, 3);
                 break;
         }
-
+        
         if(melhorou){
             count++;
             metodos = {0,1,2,3};
@@ -52,9 +53,7 @@ void BuscaLocal(Solucao& solucao){
             metodos.erase(metodos.begin() + n);
         }
     }
-    if(count > 0){
-        std::cout << "Melhorou " << count << " vezes" << std::endl;
-    }
+    std::cout << "Melhorou " << count << " vezes" << std::endl;
 }
 
 void EmbaralhaPedidos(Solucao &solucao){
@@ -129,7 +128,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
             }
-
            
         }
 
@@ -185,7 +183,6 @@ void ILS(Solucao &solucao) {
             }
 
             DoubleBridge(novaSolucao);
-            novaSolucao.calcularMulta();
             iterILS++;
         }
 

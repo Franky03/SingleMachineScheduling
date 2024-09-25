@@ -22,6 +22,8 @@ struct Solucao {
     vector<Pedido> pedidos;
     int multaSolucao = 0;
     vector<vector<int>> s;
+    vector<int> tempoAcumulado;
+    vector<double> multaPedidos;
 
     Solucao() : multaSolucao(0) {}
     Solucao(const vector<Pedido> &pedidos, int multa, vector<vector<int>> setup) : pedidos(pedidos), multaSolucao(multa), s(setup){}
@@ -30,22 +32,29 @@ struct Solucao {
         multaSolucao = 0;
         int tempo_atual = 0;
 
+        tempoAcumulado = vector<int>(pedidos.size(), 0);
+        multaPedidos = vector<double>(pedidos.size(), 0);
+
         tempo_atual += s[0][pedidos[0].id];
         tempo_atual += pedidos[0].tempo_producao;
+        tempoAcumulado[0] = tempo_atual;
 
         if (tempo_atual > pedidos[0].prazo) {
             int atraso = tempo_atual - pedidos[0].prazo;
             multaSolucao += atraso * pedidos[0].multa;
+            multaPedidos.push_back(multaSolucao);
         }
 
         for (int i = 1; i < pedidos.size(); i++) {
             // adiciona o tempo de setup entre o pedido anterior e o atual
             tempo_atual += s[pedidos[i - 1].id][pedidos[i].id];
             tempo_atual += pedidos[i].tempo_producao;
+            tempoAcumulado[i] = tempo_atual;
 
             if (tempo_atual > pedidos[i].prazo) {
                 int atraso = tempo_atual - pedidos[i].prazo;
                 multaSolucao += atraso * pedidos[i].multa;
+                multaPedidos.push_back(multaSolucao);
             }
         }
     }    
