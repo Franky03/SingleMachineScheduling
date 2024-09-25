@@ -24,14 +24,14 @@ std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao){
-    std::vector<int> metodos = {0,1,2};
+    std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementSwapK(solucao, 2 + rand() % 3);
+                melhorou = bestImprovementSwapK(solucao, 2);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao);
@@ -39,11 +39,13 @@ void BuscaLocal(Solucao& solucao){
             case 2:
                 melhorou = bestImprovementSwap(solucao);
                 break;
-            
+            case 3:
+                melhorou = bestImprovementSwapK(solucao, 3);
+                break;
         }
 
         if(melhorou){
-            metodos = {0,1,2};
+            metodos = {0,1,2,3};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -95,6 +97,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
+            
             BuscaLocal(novaSolucao);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
@@ -107,8 +110,13 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
                 break;
             }
 
-            
-            EmbaralhaPedidos(novaSolucao);
+            if(iterILS % MAX_ITER_SEM_MELHORA == 0){
+                EmbaralhaPedidos(novaSolucao);
+            } else {
+                DoubleBridge(novaSolucao);
+            }
+
+            novaSolucao.calcularMulta();
             
             iterILS++;
         }

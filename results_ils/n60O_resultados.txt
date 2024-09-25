@@ -2,7 +2,7 @@ Resultados para a instância: n60O
 
 Número de execuções: 1
 Valor ótimo: 527459
-Média da multa: 539072
-Melhor multa: 539072
-Média do tempo de execução: 551.045 segundos
-Gap em relação ao valor ótimo: 2.20169
+Média da multa: 536186
+Melhor multa: 536186
+Média do tempo de execução: 533.731 segundos
+Gap em relação ao valor ótimo: 1.65454

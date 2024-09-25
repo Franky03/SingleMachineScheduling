@@ -1,11 +1,19 @@
 #include "neighbor.h"
 #include <algorithm>
 
+void swapKBlocos(Solucao& solucao, int i, int j, int k) {
+    for (int l = 0; l < k; l++) {
+        std::swap(solucao.pedidos[i + l], solucao.pedidos[j + l]);
+    }
+}
 
-double calculateSwapDeltaMultaOpt(Solucao temp_solucao, int i, int j) {
+double calculateSwapDeltaMultaK(Solucao &temp_solucao, int i, int j, int k) {
     double multa_atual = temp_solucao.multaSolucao;
-    std::swap(temp_solucao.pedidos[i], temp_solucao.pedidos[j]);
+    swapKBlocos(temp_solucao, i, j, k);
     temp_solucao.calcularMulta();
+    double multa_after = temp_solucao.multaSolucao;
+    swapKBlocos(temp_solucao, i, j, k);
+    temp_solucao.multaSolucao = multa_atual;
     return temp_solucao.multaSolucao - multa_atual;
 }
 
@@ -15,7 +23,7 @@ bool bestImprovementSwap(Solucao& solucao){
     
     for (int i = 0; i < solucao.pedidos.size() - 1; i++){
         for (int j = i+1; j < solucao.pedidos.size(); j++){
-            double delta_multa = calculateSwapDeltaMultaOpt(solucao, i, j);
+            double delta_multa = calculateSwapDeltaMultaK(solucao, i, j, 1);
             
             if(delta_multa < bestDeltaMulta){
                 bestDeltaMulta = delta_multa;
@@ -33,20 +41,6 @@ bool bestImprovementSwap(Solucao& solucao){
 
     return false;
 }
-
-void swapKBlocos(Solucao& solucao, int i, int j, int k) {
-    for (int l = 0; l < k; l++) {
-        std::swap(solucao.pedidos[i + l], solucao.pedidos[j + l]);
-    }
-}
-
-double calculateSwapDeltaMultaK(Solucao temp_solucao, int i, int j, int k) {
-    double multa_atual = temp_solucao.multaSolucao;
-    swapKBlocos(temp_solucao, i, j, k);
-    temp_solucao.calcularMulta();
-    return temp_solucao.multaSolucao - multa_atual;
-}
-
 
 bool bestImprovementSwapK(Solucao& solucao, int k){
     double bestDeltaMulta = 0;
@@ -81,7 +75,7 @@ bool bestImprovementInsert(Solucao& solucao){
     int size = solucao.pedidos.size();
 
     for(int i = 0; i < size - 1; i++){
-        for(int j = 1; j < size; j++){
+        for(int j = 0; j < size; j++){
             if(i == j) continue;
 
             double multa_atual = solucao.multaSolucao;
@@ -192,6 +186,50 @@ bool bestImprovement2opt(Solucao& solucao){
 
     if (bestDeltaMulta < 0) {
         std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
+        solucao.multaSolucao += bestDeltaMulta;
+        return true;
+    }
+
+    return false;
+}
+
+bool bestImprovementOrOpt(Solucao& solucao, int k){
+    double bestDeltaMulta = 0;
+    int best_i = -1, best_j = -1;
+
+    int size = solucao.pedidos.size();
+
+    for (int i = 0; i <= size - k; i++) {
+        for (int j = 0; j <= size - k; j++) {
+            if (i == j || (i < j && i + k > j)) continue; // evita sobreposição de índices
+
+            double multa_atual = solucao.multaSolucao;
+
+            Solucao temp_solucao = solucao;
+
+            std::vector<Pedido> pedidos = temp_solucao.pedidos;
+            std::vector<Pedido> bloco(pedidos.begin() + j, pedidos.begin() + j + k); // Bloco de tamanho k
+
+            pedidos.erase(pedidos.begin() + j, pedidos.begin() + j + k);
+            pedidos.insert(pedidos.begin() + i, bloco.begin(), bloco.end());
+
+            temp_solucao.pedidos = pedidos;
+            temp_solucao.calcularMulta();
+
+            double delta_multa = temp_solucao.multaSolucao - multa_atual;
+
+            if (delta_multa < bestDeltaMulta) {
+                bestDeltaMulta = delta_multa;
+                best_i = i;
+                best_j = j;
+            }
+        }
+    }
+
+    if(bestDeltaMulta < 0){
+        std::vector<Pedido> bloco(solucao.pedidos.begin() + best_j, solucao.pedidos.begin() + best_j + k);
+        solucao.pedidos.erase(solucao.pedidos.begin() + best_j, solucao.pedidos.begin() + best_j + k);
+        solucao.pedidos.insert(solucao.pedidos.begin() + best_i, bloco.begin(), bloco.end());
         solucao.multaSolucao += bestDeltaMulta;
         return true;
     }
