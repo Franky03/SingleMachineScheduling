@@ -31,24 +31,28 @@ struct hash_pair {
 
 class Setup {
 public:
-    unordered_map<pair<int, int>, int, hash_pair> s;
+    vector<vector<int>> s;
 
     Setup() {}
+    
+    Setup(int numPedidos) {
+        s.resize(numPedidos, vector<int>(numPedidos + 1, 0));
+    }
 
     // adiciona uma transição de setup no mapa
     void adicionarSetup(int id1, int id2, int valor) {
-        if (valor != 0) {
-            s[{id1, id2}] = valor;
+        if (id1 < s.size() && id2 < s.size()) {
+            s[id1][id2] = valor;
         }
     }
 
-    // pbtém o valor de setup entre dois pedidos
+
+    // obtém o valor de setup entre dois pedidos
     int obterSetup(int id1, int id2) const {
-        auto it = s.find({id1, id2});
-        if (it != s.end()) {
-            return it->second;
+        if (id1 < s.size() && id2 < s.size()) {
+            return s[id1][id2];
         }
-        return 0;  // retorna 0 se não houver transição
+        return 0; 
     }
 };
 

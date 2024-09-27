@@ -5,6 +5,6 @@
 #include <string>
 #include "config.h"
 
-void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedidos, unordered_map<pair<int, int>, int, hash_pair>& s);
+void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedidos, vector<vector<int>>& s);
 
 #endif 
