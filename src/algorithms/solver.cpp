@@ -20,8 +20,6 @@
 #define MAX_LOCAL_SEARCH 100
 
 std::mutex mtx;
-
-std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) {
@@ -100,8 +98,8 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
-        while (iterILS < MAX_ITER_ILS) {
-
+        while (iterILS < MAX_ITER_ILS) {    
+            std::cout << "Multa antes da busca local: " << novaSolucao.multaSolucao << std::endl;
             BuscaLocal(novaSolucao, setup);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
@@ -115,7 +113,9 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             }
 
             EmbaralhaPedidos(novaSolucao);
-  
+            std::cout << "Multa: " << novaSolucao.multaSolucao << std::endl;
+            novaSolucao.calcularMulta(setup);
+            std::cout << "Multa Depois: " << novaSolucao.multaSolucao << std::endl;
             
             iterILS++;
         }
