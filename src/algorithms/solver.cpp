@@ -33,7 +33,7 @@ void BuscaLocal(Solucao& solucao){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementSwapK(solucao, 2);
+                melhorou = bestImprovementShift(solucao, 2);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao);
@@ -42,7 +42,7 @@ void BuscaLocal(Solucao& solucao){
                 melhorou = bestImprovementSwap(solucao);
                 break;
             case 3:
-                melhorou = bestImprovementSwapK(solucao, 3);
+                melhorou = bestImprovementShift(solucao, 3);
                 break;
         }
         
@@ -53,7 +53,7 @@ void BuscaLocal(Solucao& solucao){
             metodos.erase(metodos.begin() + n);
         }
     }
-    
+
 }
 
 void EmbaralhaPedidos(Solucao &solucao){
