@@ -53,8 +53,13 @@ bool bestImprovementSwap(Solucao& solucao, const Setup& setup) {
     }
 
     if (bestDeltaMulta < 0) {
+        double multa_atual = solucao.multaSolucao;
         swapKBlocos(solucao, best_i, best_j, 1);
         solucao.calcularMulta(setup);
+        double multa_depois = solucao.multaSolucao;
+        if (multa_depois > multa_atual) {
+            std::cout << "Multa calculada Antes SWAP: " << multa_atual << " - Multa Depois: " << multa_depois << std::endl;
+        }
         return true;
     }
 
