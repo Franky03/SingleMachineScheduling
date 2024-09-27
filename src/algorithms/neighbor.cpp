@@ -8,24 +8,25 @@ void swapKBlocos(Solucao& solucao, int i, int j, int k) {
     }
 }
 
-double InferenciaDeltaMultaSwap(Solucao& solucao, int i, int j, int k=1){
-    // calcula a multa atual para os pedidos i até o pedido i+5
+double InferenciaDeltaMultaSwap(Solucao& solucao, int i, int j, int k=1) {
+    // Calcula a multa atual para os pedidos de i até o final
     double multa_atual = solucao.multaSolucao;
     double multaAnterior = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
     int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1];
     int tempo_atual = tempoAnterior;
-    int final_i =  solucao.pedidos.size() ;
-    
-    // faz o swap
+    int final_i = solucao.pedidos.size();
+
+    // Faz o swap temporário dos blocos
     swapKBlocos(solucao, i, j, k);
 
     double multa_depois = multaAnterior;
 
     for (int l = i; l < final_i; l++) {
-        if(l == 0){
-            tempo_atual += solucao.s[0][solucao.pedidos[l].id];
+        if (l == 0) {
+            // Substitui o acesso anterior à matriz s pela função obterSetup
+            tempo_atual += solucao.obterSetup(0, solucao.pedidos[l].id);
         } else {
-            tempo_atual += solucao.s[solucao.pedidos[l - 1].id][solucao.pedidos[l].id];
+            tempo_atual += solucao.obterSetup(solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
         }
         tempo_atual += solucao.pedidos[l].tempo_producao;
 
@@ -35,12 +36,10 @@ double InferenciaDeltaMultaSwap(Solucao& solucao, int i, int j, int k=1){
         }
     }
 
-    // desfaz o swap
-
+    // Desfaz o swap temporário
     swapKBlocos(solucao, i, j, k);
 
     return multa_depois - multa_atual;
-    
 }
 
 bool bestImprovementSwap(Solucao& solucao){
@@ -130,15 +129,17 @@ double InferenciaDeltaMultaInsert(Solucao &solucao, int i, int j, int k = 1) {
     int tempo_atual = tempoAnterior;
     int final_i = solucao.pedidos.size();
 
-    insertKBlocos(solucao, i, j, k);
+    insertKBlocos(solucao, i, j, k); // Insere os blocos temporariamente
 
     double multa_depois = multaAnterior;
     int inicio = (j < i) ? j : i;
+
     for (int l = inicio; l < final_i; l++) {
         if (l == 0) {
-            tempo_atual += solucao.s[0][solucao.pedidos[l].id];
+            // Substitui o acesso anterior à matriz s pela função obterSetup
+            tempo_atual += solucao.obterSetup(0, solucao.pedidos[l].id);
         } else {
-            tempo_atual += solucao.s[solucao.pedidos[l - 1].id][solucao.pedidos[l].id];
+            tempo_atual += solucao.obterSetup(solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
         }
         tempo_atual += solucao.pedidos[l].tempo_producao;
 
@@ -148,7 +149,7 @@ double InferenciaDeltaMultaInsert(Solucao &solucao, int i, int j, int k = 1) {
         }
     }
 
-    insertKBlocos(solucao, j, i, k);
+    insertKBlocos(solucao, j, i, k); // Desfaz a inserção temporária
 
     return multa_depois - multa_atual;
 }
@@ -289,55 +290,6 @@ bool bestImprovement2opt(Solucao& solucao){
 
     if (bestDeltaMulta < 0) {
         std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
-        solucao.multaSolucao += bestDeltaMulta;
-        return true;
-    }
-
-    return false;
-}
-
-bool bestImprovementOrOpt(Solucao& solucao, int k) {
-    double bestDeltaMulta = 0;
-    int best_i = -1, best_j = -1;
-
-    int size = solucao.pedidos.size();
-
-    for (int i = 0; i <= size - k; i++) {
-        for (int j = 0; j <= size - k; j++) {
-            if (i == j || (i < j && i + k > j)) continue; // Evita sobreposição de índices
-
-            double multa_atual = solucao.multaSolucao;
-            double multa_parcial_antes = solucao.calcularMultaParcial(std::min(i, j));
-            std::vector<Pedido> bloco(solucao.pedidos.begin() + j, solucao.pedidos.begin() + j + k);
-            solucao.pedidos.erase(solucao.pedidos.begin() + j, solucao.pedidos.begin() + j + k);
-            int nova_posicao = (i < j) ? i : i - k;
-            solucao.pedidos.insert(solucao.pedidos.begin() + nova_posicao, bloco.begin(), bloco.end());
-
-            double multa_parcial_depois = solucao.calcularMultaParcial(std::min(nova_posicao, j));
-            double multa_depois = multa_atual - multa_parcial_antes + multa_parcial_depois;
-            double delta_multa = multa_depois - multa_atual;
-
-            solucao.pedidos.erase(solucao.pedidos.begin() + nova_posicao, solucao.pedidos.begin() + nova_posicao + k);
-            solucao.pedidos.insert(solucao.pedidos.begin() + j, bloco.begin(), bloco.end());
-
-            // Verifica se é a melhor melhora até o momento
-            if (delta_multa < bestDeltaMulta) {
-                bestDeltaMulta = delta_multa;
-                best_i = i;
-                best_j = j;
-            }
-        }
-    }
-
-    // Se encontrar uma melhora
-    if (bestDeltaMulta < 0) {
-        // Mover o bloco da posição best_j para best_i
-        std::vector<Pedido> bloco(solucao.pedidos.begin() + best_j, solucao.pedidos.begin() + best_j + k);
-        solucao.pedidos.erase(solucao.pedidos.begin() + best_j, solucao.pedidos.begin() + best_j + k);
-        int nova_posicao = (best_i < best_j) ? best_i : best_i - k;
-        solucao.pedidos.insert(solucao.pedidos.begin() + nova_posicao, bloco.begin(), bloco.end());
-
-        // Atualizar a multa com a melhor melhoria encontrada
         solucao.multaSolucao += bestDeltaMulta;
         return true;
     }

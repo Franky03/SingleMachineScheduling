@@ -25,6 +25,13 @@ file(GLOB_RECURSE SRC_FILES
     "${PROJECT_SOURCE_DIR}/src/algorithms/solver.cpp"
 )
 
+option(ENABLE_PROFILING "Enable profiling with gprof" OFF)
+
+if(ENABLE_PROFILING)
+    message(STATUS "Profiling enabled: adding -pg and -g flags")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pg -g")
+endif()
+
 # Adicionar o executável
 add_executable(opt ${SRC_FILES})
 target_compile_options(opt PRIVATE -O3)

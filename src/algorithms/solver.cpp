@@ -115,7 +115,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             }
 
             EmbaralhaPedidos(novaSolucao);
-            novaSolucao.calcularMulta();
+  
             
             iterILS++;
         }

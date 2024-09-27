@@ -5,7 +5,7 @@
 
 using namespace std;
 
-void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedidos, vector<vector<int>>& s){
+void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedidos, unordered_map<pair<int, int>, int, hash_pair>& s){
     ifstream file(filename);
 
     if (!file.is_open()) {
@@ -43,11 +43,13 @@ void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedi
     getline(file, line);
 
     // Lê a matriz de setup
-    s.resize(num_pedidos + 1, vector<int>(num_pedidos));
-
+    int setup;
     for (int i = 0; i < num_pedidos + 1; ++i) {
         for (int j = 0; j < num_pedidos; ++j) {
-            file >> s[i][j];
+            file >> setup;
+            if (setup != 0) {
+                s[{i, j}] = setup;  // Armazena apenas os tempos de setup não-zero
+            }
         }
     }
 
