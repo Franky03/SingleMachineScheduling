@@ -24,7 +24,7 @@ std::mutex mtx;
 std::mutex stopMtx;
 std::atomic<bool> stop(false);
 
-void BuscaLocal(Solucao& solucao){
+void BuscaLocal(Solucao& solucao, const Setup& setup) {
     std::vector<int> metodos = {0,1,2,3};
     bool melhorou = false;
     int count = 0;
@@ -33,16 +33,16 @@ void BuscaLocal(Solucao& solucao){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementShift(solucao, 2);
+                melhorou = bestImprovementShift(solucao, setup, 2);
                 break;
             case 1:
-                melhorou = bestImprovementInsert(solucao);
+                melhorou = bestImprovementInsert(solucao, setup);
                 break;
             case 2:
-                melhorou = bestImprovementSwap(solucao);
+                melhorou = bestImprovementSwap(solucao, setup);
                 break;
             case 3:
-                melhorou = bestImprovementShift(solucao, 3);
+                melhorou = bestImprovementShift(solucao, setup,3);
                 break;
         }
         
@@ -53,7 +53,7 @@ void BuscaLocal(Solucao& solucao){
             metodos.erase(metodos.begin() + n);
         }
     }
-
+    std::cout << "Melhorou " << count << " vezes" << std::endl;
 }
 
 void EmbaralhaPedidos(Solucao &solucao){
@@ -86,7 +86,7 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
 }
 
-void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
+void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup) {
     Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
     Solucao novaSolucao;
 
@@ -96,13 +96,13 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, 0.80);
+        novaSolucao = *Construcao(&melhorSolucao, setup,0.80);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
 
-            BuscaLocal(novaSolucao);
+            BuscaLocal(novaSolucao, setup);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  
@@ -138,10 +138,12 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd) {
     }
 }
 
-void ILS_Opt(Solucao& solucao) {
+void ILS_Opt(Solucao& solucao, const Setup& setup) {
     const int numThreads = std::thread::hardware_concurrency();
     int iterPerThread = MAX_ITER / numThreads;
-    
+
+    solucao.calcularMulta(setup);
+
     Solucao melhorSolucao = solucao;
 
     stop.store(false);
@@ -150,7 +152,7 @@ void ILS_Opt(Solucao& solucao) {
     for (int t = 0; t < numThreads; ++t) {
         int iterStart = t * iterPerThread;
         int iterEnd = (t == numThreads - 1) ? MAX_ITER : iterStart + iterPerThread;
-        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), iterStart, iterEnd);
+        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), iterStart, iterEnd, std::ref(setup));
     }
 
     for (auto& th : threads) {
@@ -162,20 +164,20 @@ void ILS_Opt(Solucao& solucao) {
 
 
 
-void ILS(Solucao &solucao) {
+void ILS(Solucao &solucao, const Setup &setup) {
     Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
     Solucao novaSolucao;
 
     double temperatura = 1e5;
 
     for (int i = 0; i < MAX_ITER; ++i) {
-        novaSolucao = *Construcao(&solucao, 0.20);  // Nova solução construída
+        novaSolucao = *Construcao(&solucao, setup ,0.20);  // Nova solução construída
 
         Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {
-            BuscaLocal(novaSolucao);
+            BuscaLocal(novaSolucao, setup);  
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  // Cópia da nova solução como a melhor local
@@ -204,7 +206,7 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
         }
 
         Solucao novaSolucao = atualSolucao;
-        BuscaLocal(novaSolucao);
+        //BuscaLocal(novaSolucao);
         double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
 
         {
@@ -232,10 +234,10 @@ void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, 
     }
 }
 
-void SimulatedAnnealing(Solucao &solucao) {
+void SimulatedAnnealing(Solucao &solucao, const Setup &setup) {
     srand(static_cast<unsigned int>(time(0)));
 
-    Solucao atualSolucao = *gulosao(&solucao);
+    Solucao atualSolucao = *gulosao(&solucao, setup);
     Solucao melhorSolucao = atualSolucao;
 
     double temperaturaInicial = 1e5;

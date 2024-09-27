@@ -11,7 +11,7 @@ struct CompararPedido { // para a fila de prioridade
 };
 
 
-Solucao *Construcao(Solucao* solucao, double alpha){
+Solucao *Construcao(Solucao* solucao, const Setup& setup ,double alpha){
     std::vector<Pedido> naoAlocados = solucao->pedidos;
     solucao->pedidos.clear();
     // armazena os pedidos não alocados em uma fila de prioridade de acordo com a razão multa/atraso
@@ -30,17 +30,17 @@ Solucao *Construcao(Solucao* solucao, double alpha){
 
         RCL.erase(RCL.begin() + indexEscolhido);
     }
-    solucao->calcularMulta();  
+    solucao->calcularMulta(setup);  
     return solucao;
 }
 
-Solucao* gulosao(Solucao* solucao) {
+Solucao* gulosao(Solucao* solucao, const Setup& setup) {
     
     std::sort(solucao->pedidos.begin(), solucao->pedidos.end(), [](const Pedido& a, const Pedido& b) {
         return a.multa > b.multa;
     });
 
-    solucao->calcularMulta();
+    solucao->calcularMulta(setup);
 
     return solucao;
     

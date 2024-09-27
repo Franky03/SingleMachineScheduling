@@ -29,25 +29,40 @@ struct hash_pair {
     }
 };
 
-struct Solucao {
-    vector<Pedido> pedidos;
-    int multaSolucao = 0;
-    unordered_map<pair<int, int>, int, hash_pair> s; 
-    vector<int> tempoAcumulado;
-    vector<double> multaPedidos;
+class Setup {
+public:
+    unordered_map<pair<int, int>, int, hash_pair> s;
 
-    Solucao() : multaSolucao(0) {}
-    Solucao(const vector<Pedido>& pedidos, int multa, const unordered_map<pair<int, int>, int, hash_pair>& setup) 
-        : pedidos(pedidos), multaSolucao(multa), s(setup) {}
+    Setup() {}
 
-    int obterSetup(int id1, int id2) {
+    // adiciona uma transição de setup no mapa
+    void adicionarSetup(int id1, int id2, int valor) {
+        if (valor != 0) {
+            s[{id1, id2}] = valor;
+        }
+    }
+
+    // pbtém o valor de setup entre dois pedidos
+    int obterSetup(int id1, int id2) const {
         auto it = s.find({id1, id2});
         if (it != s.end()) {
             return it->second;
         }
-        return 0;
+        return 0;  // retorna 0 se não houver transição
     }
+};
 
+class Solucao {
+public:
+    vector<Pedido> pedidos;
+    int multaSolucao = 0;
+    vector<int> tempoAcumulado;
+    vector<double> multaPedidos;
+
+    Solucao() : multaSolucao(0) {}
+    Solucao(const vector<Pedido>& pedidos, int multa) : pedidos(pedidos), multaSolucao(multa) {}
+
+    // Calcula a multa de um pedido específico
     double calcularMultaPedido(int tempoAtual, const Pedido& pedido) {
         if (tempoAtual > pedido.prazo) {
             int atraso = tempoAtual - pedido.prazo;
@@ -56,9 +71,10 @@ struct Solucao {
         return 0;
     }
 
-    void calcularMulta() {
+    // Calcula a multa total usando o objeto de Setup
+    void calcularMulta(const Setup& setup) {
         multaSolucao = 0;
-        int tempo_atual = obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
+        int tempo_atual = setup.obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
 
         tempoAcumulado = vector<int>(pedidos.size(), 0);
         multaPedidos = vector<double>(pedidos.size(), 0);
@@ -68,14 +84,13 @@ struct Solucao {
         multaSolucao += multaPedidos[0];
 
         for (int i = 1; i < pedidos.size(); ++i) {
-            tempo_atual += obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
+            tempo_atual += setup.obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
             tempoAcumulado[i] = tempo_atual;
 
             multaPedidos[i] = calcularMultaPedido(tempo_atual, pedidos[i]);
             multaSolucao += multaPedidos[i];
         }
     }    
-    
 };
 
 

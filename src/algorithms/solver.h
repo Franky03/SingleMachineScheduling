@@ -12,6 +12,6 @@ void BuscaLocal(Solucao& solucao);
 void DoubleBridge(Solucao &solucao);
 void ILS(Solucao& solucao);
 void SimulatedAnnealing(Solucao &solucao);
-void ILS_Opt(Solucao& solucao);
+void ILS_Opt(Solucao& solucao, const Setup& setup);
 
 #endif

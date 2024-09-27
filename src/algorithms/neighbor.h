@@ -9,11 +9,10 @@
 // 2. Inserção de um pedido em uma posição diferente (insert)
 // 3. Reversão de sub-sequência de pedidos (2-opt)
 
-bool bestImprovementSwap(Solucao& solucao);
-bool bestImprovementInsert(Solucao& solucao);
-bool bestImprovement2opt(Solucao& solucao); 
-bool bestImprovementSwapK(Solucao& solucao, int k);
-bool bestImprovementOrOpt(Solucao& solucao, int k);
-bool bestImprovementShift(Solucao& solucao, int k);
+bool bestImprovementSwap(Solucao& solucao, const Setup& setup);
+bool bestImprovementInsert(Solucao& solucao, const Setup& setup);
+bool bestImprovement2opt(Solucao& solucao, const Setup& setup);
+bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k);
+bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k);
 
 #endif // VIZINHANCA_H
