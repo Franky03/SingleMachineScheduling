@@ -6,7 +6,7 @@
 
 struct CompararPedido { // para a fila de prioridade
     bool operator()(const Pedido& a, const Pedido& b) const {
-        return a.multa / (a.prazo - a.tempo_producao) < b.multa / (b.prazo - b.tempo_producao);
+        return a.prazo < b.prazo;
     }
 };
 

@@ -13,41 +13,45 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 200
-#define MAX_ITER_ILS 400
+#define MAX_ITER 100
+#define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 50
+#define MAX_ITER_SEM_MELHORA 100
 #define MAX_LOCAL_SEARCH 100
 
 std::mutex mtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) {
-    std::vector<int> metodos = {0,1,2,3};
+    std::vector<int> metodos = {0,1,2,3,4,5};
     bool melhorou = false;
-    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){ 
             case 0:
-                melhorou = bestImprovementShift(solucao, setup, 2);
+                melhorou = bestImprovementSwap(solucao, setup);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao, setup);
                 break;
             case 2:
-                melhorou = bestImprovementSwap(solucao, setup);
+                melhorou = bestImprovementShift(solucao, setup, 2);
                 break;
             case 3:
                 melhorou = bestImprovementShift(solucao, setup,3);
                 break;
+            case 4:
+                melhorou = bestImprovementSwapK(solucao, setup, 1+rand()%3);
+                break;
+            case 5:
+                melhorou = bestImprovementShift(solucao, setup, 2+rand()%5);
+                break;
         }
         
         if(melhorou){
-            count++;
-            metodos = {0,1,2,3};
+            metodos = {0,1,2,3,4,5};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -111,7 +115,11 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 break;
             }
 
-            EmbaralhaPedidos(novaSolucao);
+            if(iterILS % MAX_ITER_SEM_MELHORA == 0){
+                EmbaralhaPedidos(novaSolucao);
+            } else {
+                DoubleBridge(novaSolucao);
+            }
             novaSolucao.calcularMulta(setup);
             
             iterILS++;
@@ -124,11 +132,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
-                for(auto pedido : melhorLocal.pedidos){
-                    std::cout << pedido.id << " ";
-                }
-                std::cout << std::endl;
-                assert(melhorLocal.multaSolucao == melhorLocal.calcularMultaEval(melhorLocal.pedidos, setup));
             }
            
         }
