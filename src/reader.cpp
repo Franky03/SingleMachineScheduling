@@ -48,7 +48,7 @@ void readInstance(const string& filename, int& num_pedidos, vector<Pedido>& pedi
     // Lê a matriz de setup
     for (int i = 0; i < num_pedidos + 1; ++i) {
         for (int j = 0; j < num_pedidos; ++j) {
-            file >> s[i][j];  // Preenche o vetor de vetores com os tempos de setup
+            file >> s[i][j]; 
         }
     }
 

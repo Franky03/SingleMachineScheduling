@@ -41,7 +41,7 @@ public:
 
     // obtém o valor de setup entre dois pedidos
     int obterSetup(int id1, int id2) const {
-        return s[id1][id2];
+        return s[id1+1][id2];
     }
 };
 
@@ -79,11 +79,25 @@ public:
         for (int i = 1; i < pedidos.size(); ++i) {
             tempo_atual += setup.obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
             tempoAcumulado[i] = tempo_atual;
-
-            multaPedidos[i] = multaPedidos[i - 1] + calcularMultaPedido(tempo_atual, pedidos[i]);
-            multaSolucao += calcularMultaPedido(tempo_atual, pedidos[i]);
+            double m = calcularMultaPedido(tempo_atual, pedidos[i]);
+            multaPedidos[i] = multaPedidos[i - 1] + m;
+            multaSolucao += m;
         }
-    }    
+    }  
+
+    double calcularMultaEval(vector<Pedido> &pedidos, const Setup& setup) {
+        double multa = 0;
+        int tempo_atual = setup.obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
+
+        multa += calcularMultaPedido(tempo_atual, pedidos[0]);
+
+        for (int i = 1; i < pedidos.size(); ++i) {
+            tempo_atual += setup.obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
+            multa += calcularMultaPedido(tempo_atual, pedidos[i]);
+        }
+
+        return multa;
+    }
 };
 
 

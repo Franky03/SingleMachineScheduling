@@ -11,6 +11,7 @@
 #include <unordered_set>
 #include <chrono>
 #include <algorithm>
+#include <cassert>
 
 #define MAX_ITER 200
 #define MAX_ITER_ILS 400
@@ -123,6 +124,11 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                         << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
+                for(auto pedido : melhorLocal.pedidos){
+                    std::cout << pedido.id << " ";
+                }
+                std::cout << std::endl;
+                assert(melhorLocal.multaSolucao == melhorLocal.calcularMultaEval(melhorLocal.pedidos, setup));
             }
            
         }
