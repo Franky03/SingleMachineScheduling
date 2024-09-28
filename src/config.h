@@ -39,20 +39,9 @@ public:
         s.resize(numPedidos, vector<int>(numPedidos + 1, 0));
     }
 
-    // adiciona uma transição de setup no mapa
-    void adicionarSetup(int id1, int id2, int valor) {
-        if (id1 < s.size() && id2 < s.size()) {
-            s[id1][id2] = valor;
-        }
-    }
-
-
     // obtém o valor de setup entre dois pedidos
     int obterSetup(int id1, int id2) const {
-        if (id1 < s.size() && id2 < s.size()) {
-            return s[id1][id2];
-        }
-        return 0; 
+        return s[id1][id2];
     }
 };
 
@@ -91,8 +80,8 @@ public:
             tempo_atual += setup.obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
             tempoAcumulado[i] = tempo_atual;
 
-            multaPedidos[i] = calcularMultaPedido(tempo_atual, pedidos[i]);
-            multaSolucao += multaPedidos[i];
+            multaPedidos[i] = multaPedidos[i - 1] + calcularMultaPedido(tempo_atual, pedidos[i]);
+            multaSolucao += calcularMultaPedido(tempo_atual, pedidos[i]);
         }
     }    
 };

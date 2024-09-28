@@ -8,31 +8,24 @@ void swapKBlocos(Solucao& solucao, int i, int j, int k) {
     }
 }
 
+double calcularMultaAcumulada(Solucao& solucao, const Setup& setup, int inicio) {
+    double multaAcumulada = (inicio == 0) ? 0 : solucao.multaPedidos[inicio - 1];
+    int tempo_atual = (inicio == 0) ? 0 : solucao.tempoAcumulado[inicio - 1];
+    
+    for (int l = inicio; l < solucao.pedidos.size(); ++l) {
+        tempo_atual += setup.obterSetup((l == 0) ? 0 : solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
+        tempo_atual += solucao.pedidos[l].tempo_producao;
+        multaAcumulada += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
+    }
+    
+    return multaAcumulada;
+}
+
 double InferenciaDeltaMultaSwap(Solucao& solucao, const Setup& setup, int i, int j, int k = 1) {
     double multa_atual = solucao.multaSolucao;
-    double multaAnterior = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
-    int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1];
-    int tempo_atual = tempoAnterior;
-    int final_i = solucao.pedidos.size();
-
-    // Faz o swap temporário dos blocos
     swapKBlocos(solucao, i, j, k);
-
-    double multa_depois = multaAnterior;
-
-    for (int l = i; l < final_i; l++) {
-        if (l == 0) {
-            tempo_atual += setup.obterSetup(0, solucao.pedidos[l].id);
-        } else {
-            tempo_atual += setup.obterSetup(solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
-        }
-        tempo_atual += solucao.pedidos[l].tempo_producao;
-        multa_depois += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
-    }
-
-    // Desfaz o swap temporário
+    double multa_depois = calcularMultaAcumulada(solucao, setup, std::min(i, j));
     swapKBlocos(solucao, i, j, k);
-
     return multa_depois - multa_atual;
 }
 
@@ -53,13 +46,8 @@ bool bestImprovementSwap(Solucao& solucao, const Setup& setup) {
     }
 
     if (bestDeltaMulta < 0) {
-        double multa_atual = solucao.multaSolucao;
         swapKBlocos(solucao, best_i, best_j, 1);
         solucao.calcularMulta(setup);
-        double multa_depois = solucao.multaSolucao;
-        if (multa_depois > multa_atual) {
-            std::cout << "Multa calculada Antes SWAP: " << multa_atual << " - Multa Depois: " << multa_depois << std::endl;
-        }
         return true;
     }
 
@@ -121,33 +109,10 @@ void insertKBlocos(Solucao& solucao, int i, int j, int k){
 
 
 double InferenciaDeltaMultaInsert(Solucao &solucao, const Setup& setup, int i, int j, int k = 1) {
-    double multaAnterior = (i == 0) ? 0 : solucao.multaPedidos[i - 1];
     double multa_atual = solucao.multaSolucao;
-    int tempoAnterior = (i == 0) ? 0 : solucao.tempoAcumulado[i - 1]; 
-    int tempo_atual = tempoAnterior;
-    int final_i = solucao.pedidos.size();
-
-    insertKBlocos(solucao, i, j, k);  // Insere os blocos temporariamente
-
-    double multa_depois = multaAnterior;
-    int inicio = (j < i) ? j : i;
-
-    for (int l = inicio; l < final_i; l++) {
-        if (l == 0) {
-            tempo_atual += setup.obterSetup(0, solucao.pedidos[l].id);
-        } else {
-            tempo_atual += setup.obterSetup(solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
-        }
-        tempo_atual += solucao.pedidos[l].tempo_producao;
-
-        if (tempo_atual > solucao.pedidos[l].prazo) {
-            int atraso = tempo_atual - solucao.pedidos[l].prazo;
-            multa_depois += atraso * solucao.pedidos[l].multa;
-        }
-    }
-
-    insertKBlocos(solucao, j, i, k);  // Desfaz a inserção temporária
-
+    insertKBlocos(solucao, i, j, k);
+    double multa_depois = calcularMultaAcumulada(solucao, setup, std::min(i, j));
+    insertKBlocos(solucao, j, i, k);
     return multa_depois - multa_atual;
 }
 
@@ -162,6 +127,8 @@ bool bestImprovementInsert(Solucao& solucao, const Setup& setup) {
         for (int j = 0; j < size; j++) {
             if (i == j) continue;
 
+            Solucao temp_solucao = solucao;
+
             double delta_multa = InferenciaDeltaMultaInsert(solucao, setup, i, j, 1);
 
             if (delta_multa < bestDeltaMulta) {
@@ -173,13 +140,8 @@ bool bestImprovementInsert(Solucao& solucao, const Setup& setup) {
     }
 
     if (bestDeltaMulta < 0) {
-        double multa_atual = solucao.multaSolucao;
         insertKBlocos(solucao, best_i, best_j, 1);
         solucao.calcularMulta(setup); 
-        double multa_depois = solucao.multaSolucao;
-        if (multa_depois > multa_atual) {
-            std::cout << "Multa calculada Antes INSERT: " << multa_atual << " - Multa Depois: " << multa_depois << std::endl;
-        }
         return true;
     }
 
@@ -188,12 +150,13 @@ bool bestImprovementInsert(Solucao& solucao, const Setup& setup) {
 
 bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
     double bestDeltaMulta = 0;
-    int best_i = -1, best_j = -1, k_final = k;
+    int best_i = -1, best_j = -1, best_k = -1;
 
     int size = solucao.pedidos.size();
 
     for (int i = 0; i < size; i++) {
         for (int j = 0; j < size; j++) {
+            int k_final = k;
             if (i == j) continue;
             if (i + k > size) k_final = size - i;
 
@@ -203,19 +166,14 @@ bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
                 bestDeltaMulta = delta_multa;
                 best_i = i;
                 best_j = j;
+                best_k = k_final;
             }
         }
     }
 
     if (bestDeltaMulta < 0) {
-        double multa_atual = solucao.multaSolucao;
-        insertKBlocos(solucao, best_i, best_j, k_final);
+        insertKBlocos(solucao, best_i, best_j, best_k);
         solucao.calcularMulta(setup); 
-        double multa_depois = solucao.multaSolucao;
-
-        if (multa_depois > multa_atual) {
-            std::cout << "Multa calculada Antes SHIFT: " << multa_atual << " - Multa Depois: " << multa_depois << std::endl;
-        }
         return true;
     }
 
