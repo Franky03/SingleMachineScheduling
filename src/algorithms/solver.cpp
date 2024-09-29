@@ -13,18 +13,19 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 100
-#define MAX_ITER_ILS 200
+
+#define MAX_ITER 200
+#define MAX_ITER_ILS 400
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 100
+#define MAX_ITER_SEM_MELHORA 25
 #define MAX_LOCAL_SEARCH 100
 
 std::mutex mtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) {
-    std::vector<int> metodos = {0,1,2,3,4,5};
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -43,15 +44,23 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup,3);
                 break;
             case 4:
-                melhorou = bestImprovementSwapK(solucao, setup, 1+rand()%3);
+                melhorou = bestImprovementShift(solucao, setup, 4);
                 break;
             case 5:
-                melhorou = bestImprovementShift(solucao, setup, 2+rand()%5);
+                melhorou = bestImprovementSwapK(solucao, setup, 2);
+                break;
+            case 6:
+                melhorou = bestImprovementSwapK(solucao, setup, 3);
+                break;
+            case 7:
+                melhorou = bestImprovementSwapK(solucao, setup, 4);
+                break;
+            case 8:
+                melhorou = bestImprovement2opt(solucao, setup);
                 break;
         }
-        
-        if(melhorou){
-            metodos = {0,1,2,3,4,5};
+        if(melhorou){   
+            metodos = {0,1,2,3,4,5,6,7,8};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -85,7 +94,7 @@ void DoubleBridge(Solucao &solucao){
     novoVetor.insert(novoVetor.end(), itPos2, itPos3); // C
     novoVetor.insert(novoVetor.end(), itPos1, itPos2); // B
 
-    solucao.pedidos = std::move(novoVetor); // Move novoVetor para solucao.pedidos
+    solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos
 }
 
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup) {
@@ -98,7 +107,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup,0.80);
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.1);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -114,14 +123,10 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 stop.store(true);
                 break;
             }
-
-            if(iterILS % MAX_ITER_SEM_MELHORA == 0){
-                EmbaralhaPedidos(novaSolucao);
-            } else {
-                DoubleBridge(novaSolucao);
-            }
-            novaSolucao.calcularMulta(setup);
             
+            DoubleBridge(novaSolucao);
+            novaSolucao.calcularMulta(setup);
+        
             iterILS++;
         }
 

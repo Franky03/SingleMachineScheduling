@@ -6,8 +6,8 @@
 #include <list>
 #include <queue>
 #include <unordered_map>
-#include <utility>  // para std::pair
-#include <functional>  // para std::hash
+#include <utility> 
+#include <functional> 
 
 using namespace std;
 
@@ -16,7 +16,6 @@ struct Pedido {
     int prazo;
     int multa;
     int id;
-    double multaPedido;
 };
 
 
@@ -39,7 +38,6 @@ public:
         s.resize(numPedidos, vector<int>(numPedidos + 1, 0));
     }
 
-    // obtém o valor de setup entre dois pedidos
     int obterSetup(int id1, int id2) const {
         return s[id1+1][id2];
     }
@@ -50,13 +48,13 @@ public:
     vector<Pedido> pedidos;
     int multaSolucao = 0;
     vector<int> tempoAcumulado;
-    vector<double> multaPedidos;
+    vector<double> multaAcumulada;
 
     Solucao() : multaSolucao(0) {}
     Solucao(const vector<Pedido>& pedidos, int multa) : pedidos(pedidos), multaSolucao(multa) {}
 
-    // Calcula a multa de um pedido específico
-    double calcularMultaPedido(int tempoAtual, const Pedido& pedido) {
+    // Calcula a multa de um pedido
+    inline double calcularMultaPedido(int tempoAtual, const Pedido& pedido) {
         if (tempoAtual > pedido.prazo) {
             int atraso = tempoAtual - pedido.prazo;
             return atraso * pedido.multa;
@@ -64,23 +62,22 @@ public:
         return 0;
     }
 
-    // Calcula a multa total usando o objeto de Setup
     void calcularMulta(const Setup& setup) {
         multaSolucao = 0;
         int tempo_atual = setup.obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
 
         tempoAcumulado = vector<int>(pedidos.size(), 0);
-        multaPedidos = vector<double>(pedidos.size(), 0);
+        multaAcumulada = vector<double>(pedidos.size(), 0);
 
         tempoAcumulado[0] = tempo_atual;
-        multaPedidos[0] = calcularMultaPedido(tempo_atual, pedidos[0]);
-        multaSolucao += multaPedidos[0];
+        multaAcumulada[0] = calcularMultaPedido(tempo_atual, pedidos[0]);
+        multaSolucao += multaAcumulada[0];
 
         for (int i = 1; i < pedidos.size(); ++i) {
             tempo_atual += setup.obterSetup(pedidos[i - 1].id, pedidos[i].id) + pedidos[i].tempo_producao;
             tempoAcumulado[i] = tempo_atual;
             double m = calcularMultaPedido(tempo_atual, pedidos[i]);
-            multaPedidos[i] = multaPedidos[i - 1] + m;
+            multaAcumulada[i] = multaAcumulada[i - 1] + m;
             multaSolucao += m;
         }
     }  
@@ -101,4 +98,4 @@ public:
 };
 
 
-#endif // CONFIG_H
+#endif 

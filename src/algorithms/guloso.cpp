@@ -14,7 +14,7 @@ struct CompararPedido { // para a fila de prioridade
 Solucao *Construcao(Solucao* solucao, const Setup& setup ,double alpha){
     std::vector<Pedido> naoAlocados = solucao->pedidos;
     solucao->pedidos.clear();
-    // armazena os pedidos não alocados em uma fila de prioridade de acordo com a razão multa/atraso
+    // armazena os pedidos não alocados em uma fila de prioridade de acordo com a regra de comparação
     std::priority_queue<Pedido, std::vector<Pedido>, CompararPedido> filaPrioridade(naoAlocados.begin(), naoAlocados.end());
     std::vector<Pedido> RCL;
     while (!filaPrioridade.empty()) {

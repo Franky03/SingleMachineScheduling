@@ -2,20 +2,23 @@
 #include <algorithm>
 #include <chrono>
 
-void swapKBlocos(Solucao& solucao, int i, int j, int k) {
+inline void swapKBlocos(Solucao& solucao, int i, int j, int k) {
     for (int l = 0; l < k; l++) {
         std::swap(solucao.pedidos[i + l], solucao.pedidos[j + l]);
     }
 }
 
-double calcularMultaAcumulada(Solucao& solucao, const Setup& setup, int inicio) {
-    double multaAcumulada = (inicio == 0) ? 0 : solucao.multaPedidos[inicio - 1];
+inline double calcularMultaAcumulada(Solucao& solucao, const Setup& setup, int inicio) {
+    double multaAcumulada = (inicio == 0) ? 0 : solucao.multaAcumulada[inicio - 1];
     int tempo_atual = (inicio == 0) ? 0 : solucao.tempoAcumulado[inicio - 1];
+    int ultimoPedidoId = (inicio == 0) ? 0 : solucao.pedidos[inicio - 1].id;
     
     for (int l = inicio; l < solucao.pedidos.size(); ++l) {
-        tempo_atual += setup.obterSetup((l == 0) ? 0 : solucao.pedidos[l - 1].id, solucao.pedidos[l].id);
+        int pedidoAtualId = solucao.pedidos[l].id;
+        tempo_atual += setup.obterSetup(ultimoPedidoId, pedidoAtualId);
         tempo_atual += solucao.pedidos[l].tempo_producao;
         multaAcumulada += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
+        ultimoPedidoId = pedidoAtualId;
     }
     
     return multaAcumulada;
@@ -79,7 +82,7 @@ bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k) {
     return false;
 }
 
-void insertKBlocos(Solucao& solucao, int i, int j, int k){
+inline void insertKBlocos(Solucao& solucao, int i, int j, int k){
     int n = solucao.pedidos.size();
     
     if(i+k > n) k = n-i;
@@ -180,6 +183,14 @@ bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
     return false;
 }
 
+double InferenciaDeltaMulta2Opt(Solucao& solucao, const Setup& setup, int i, int j) {
+    double multa_atual = solucao.multaSolucao;
+    std::reverse(solucao.pedidos.begin() + i, solucao.pedidos.begin() + j + 1);
+    double multa_depois = calcularMultaAcumulada(solucao, setup, std::min(i, j));
+    std::reverse(solucao.pedidos.begin() + i, solucao.pedidos.begin() + j + 1);
+    return multa_depois - multa_atual;
+}
+
 
 bool bestImprovement2opt(Solucao& solucao, const Setup& setup) {
     double bestDeltaMulta = 0;
@@ -187,16 +198,7 @@ bool bestImprovement2opt(Solucao& solucao, const Setup& setup) {
 
     for (int i = 1; i < solucao.pedidos.size() - 2; i++) {
         for (int j = i + 1; j < solucao.pedidos.size() - 1; j++) {
-            double multa_atual = solucao.multaSolucao;
-
-            Solucao temp_solucao = solucao;
-            std::vector<Pedido> pedidos = temp_solucao.pedidos;
-            std::reverse(pedidos.begin() + i, pedidos.begin() + j + 1); // Inverte o segmento
-
-            temp_solucao.pedidos = pedidos;
-            temp_solucao.calcularMulta(setup);
-
-            double delta_multa = temp_solucao.multaSolucao - multa_atual;
+            double delta_multa = InferenciaDeltaMulta2Opt(solucao, setup, i, j);
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;
                 best_i = i;
@@ -207,7 +209,7 @@ bool bestImprovement2opt(Solucao& solucao, const Setup& setup) {
 
     if (bestDeltaMulta < 0) {
         std::reverse(solucao.pedidos.begin() + best_i, solucao.pedidos.begin() + best_j + 1);
-        solucao.multaSolucao += bestDeltaMulta;
+        solucao.calcularMulta(setup);
         return true;
     }
 
