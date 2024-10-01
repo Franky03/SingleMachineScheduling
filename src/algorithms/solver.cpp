@@ -107,7 +107,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.1);
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.6);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;

@@ -15,7 +15,11 @@ inline double calcularMultaAcumulada(Solucao& solucao, const Setup& setup, int i
     
     for (int l = inicio; l < solucao.pedidos.size(); ++l) {
         int pedidoAtualId = solucao.pedidos[l].id;
-        tempo_atual += setup.obterSetup(ultimoPedidoId, pedidoAtualId);
+        if (l==0) {
+            tempo_atual += setup.obterSetupPrimeiroPedido(solucao.pedidos[0].id);
+        } else {
+            tempo_atual += setup.obterSetup(ultimoPedidoId, pedidoAtualId);
+        }
         tempo_atual += solucao.pedidos[l].tempo_producao;
         multaAcumulada += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
         ultimoPedidoId = pedidoAtualId;

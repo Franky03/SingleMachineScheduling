@@ -41,6 +41,10 @@ public:
     int obterSetup(int id1, int id2) const {
         return s[id1+1][id2];
     }
+
+    int obterSetupPrimeiroPedido(int id) const {
+        return s[0][id];
+    }
 };
 
 class Solucao {
@@ -64,7 +68,7 @@ public:
 
     void calcularMulta(const Setup& setup) {
         multaSolucao = 0;
-        int tempo_atual = setup.obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
+        int tempo_atual = setup.obterSetupPrimeiroPedido(pedidos[0].id) + pedidos[0].tempo_producao;
 
         tempoAcumulado = vector<int>(pedidos.size(), 0);
         multaAcumulada = vector<double>(pedidos.size(), 0);
@@ -84,7 +88,7 @@ public:
 
     double calcularMultaEval(vector<Pedido> &pedidos, const Setup& setup) {
         double multa = 0;
-        int tempo_atual = setup.obterSetup(0, pedidos[0].id) + pedidos[0].tempo_producao;
+        int tempo_atual = setup.obterSetupPrimeiroPedido(pedidos[0].id) + pedidos[0].tempo_producao;
 
         multa += calcularMultaPedido(tempo_atual, pedidos[0]);
 
