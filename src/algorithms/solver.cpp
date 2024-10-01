@@ -25,7 +25,7 @@ std::mutex mtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) {
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8};
+    std::vector<int> metodos = {0,1,2,3,4,5,6};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -47,20 +47,14 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup, 4);
                 break;
             case 5:
-                melhorou = bestImprovementSwapK(solucao, setup, 2);
+                melhorou = bestImprovementSwapK(solucao, setup, rand() % 3 + 2);
                 break;
             case 6:
-                melhorou = bestImprovementSwapK(solucao, setup, 3);
-                break;
-            case 7:
-                melhorou = bestImprovementSwapK(solucao, setup, 4);
-                break;
-            case 8:
                 melhorou = bestImprovement2opt(solucao, setup);
                 break;
         }
         if(melhorou){   
-            metodos = {0,1,2,3,4,5,6,7,8};
+            metodos = {0,1,2,3,4,5,6};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -136,7 +130,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             if (melhorLocal.multaSolucao < melhorSolucaoGlobal.multaSolucao) {
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
-                        << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
+                << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
             }
            
         }
@@ -194,7 +188,7 @@ void ILS(Solucao &solucao, const Setup &setup) {
                 iterILS = 0;
             }
 
-            DoubleBridge(novaSolucao);
+            EmbaralhaPedidos(novaSolucao);
             iterILS++;
         }
 
@@ -291,6 +285,7 @@ void SimulatedAnnealing(Solucao &solucao, const Setup &setup) {
 
         // aplicar a perturbação na solução atual após a cadeia de Markov
         DoubleBridge(atualSolucao);
+        atualSolucao.calcularMulta(setup);
     }
 
     outputFile.close();

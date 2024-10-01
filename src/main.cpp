@@ -92,7 +92,7 @@ int main(){
         std::string instanceName = entry.path().stem().string(); // nome do arquivo sem a extensão
         readInstance(instancePath, num_pedidos, solucao.pedidos, setup.s);
 
-        std::cout << "Instância: " << instanceName << std::endl;
+        std::cout << "\033[95mInstância: " << instanceName << "\033[0m" << std::endl;
         
         double valorOtimo = optimal_values[instanceName];
 
