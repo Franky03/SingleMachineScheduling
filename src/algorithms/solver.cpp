@@ -1,9 +1,9 @@
 #include "solver.h"
 #include <cmath>
-#include <cstdlib>  // Para rand()
-#include <random>   // Para std::mt19937
-#include <ctime>    // Para time()
-#include <fstream>  // Para escrever em arquivos
+#include <cstdlib> 
+#include <random>  
+#include <ctime>
+#include <fstream>
 #include <thread>
 #include <atomic>
 #include <mutex>
@@ -74,7 +74,6 @@ void DoubleBridge(Solucao &solucao){
     int pos2 = pos1 + 1 + rand() % (n / 4);
     int pos3 = pos2 + 1 + rand() % (n / 4);
     
-    // Utiliza iteradores para acessar as posições no vetor
     auto itBegin = solucao.pedidos.begin();
     auto itPos1 = itBegin + pos1;
     auto itPos2 = itBegin + pos2;
@@ -92,7 +91,7 @@ void DoubleBridge(Solucao &solucao){
 }
 
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup) {
-    Solucao melhorSolucao = melhorSolucaoGlobal;  // Inicializa melhorSolucao como uma cópia da solução global
+    Solucao melhorSolucao = melhorSolucaoGlobal;  // inicializa melhorSolucao como uma cópia da solução global
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
@@ -101,7 +100,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.6);
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -163,132 +162,5 @@ void ILS_Opt(Solucao& solucao, const Setup& setup) {
         th.join();
     }
 
-    solucao = melhorSolucao;
-}
-
-
-
-void ILS(Solucao &solucao, const Setup &setup) {
-    Solucao melhorSolucao = solucao;  // Inicializa melhorSolucao como uma cópia da solução atual
-    Solucao novaSolucao;
-
-    double temperatura = 1e5;
-
-    for (int i = 0; i < MAX_ITER; ++i) {
-        novaSolucao = *Construcao(&solucao, setup ,0.20);  // Nova solução construída
-
-        Solucao melhorLocal = novaSolucao;  // Copia a nova solução como a melhor solução local
-
-        int iterILS = 0;
-        while (iterILS < MAX_ITER_ILS) {
-            BuscaLocal(novaSolucao, setup);  
-
-            if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
-                melhorLocal = novaSolucao;  // Cópia da nova solução como a melhor local
-                iterILS = 0;
-            }
-
-            EmbaralhaPedidos(novaSolucao);
-            iterILS++;
-        }
-
-        // Verifica se a melhor solução local é melhor que a global
-        if (melhorLocal.multaSolucao < melhorSolucao.multaSolucao) {
-            melhorSolucao = melhorLocal;
-            std::cout << "Iteração " << i << " - Melhor solução local: " << melhorLocal.multaSolucao << std::endl;
-        }
-    }
-
-    solucao = melhorSolucao;  // Atualiza a solução final
-}
-
-void MarkovChains(int thread_id, int L_start, int L_end, Solucao &atualSolucao, Solucao &melhorSolucao, double temperatura, std::ofstream& outputFile, std::atomic<int>& iter){
-    for (int i = L_start; i < L_end; ++i){
-
-        {
-            if(stop.load()) return;  // para se a flag for ativada
-        }
-
-        Solucao novaSolucao = atualSolucao;
-        //BuscaLocal(novaSolucao);
-        double deltaMulta = novaSolucao.multaSolucao - atualSolucao.multaSolucao;
-
-        {
-            if (deltaMulta < 0 || std::exp(-deltaMulta / temperatura) > ((double) rand() / (RAND_MAX))) {
-                std::lock_guard<std::mutex> guard(mtx);
-                atualSolucao = novaSolucao;
-            }
-            if (atualSolucao.multaSolucao < melhorSolucao.multaSolucao) {
-                std::lock_guard<std::mutex> guard(mtx);
-                melhorSolucao = atualSolucao;
-            }
-
-            std::lock_guard<std::mutex> guard(mtx);
-            outputFile << iter << "," << temperatura << "," << melhorSolucao.multaSolucao << "\n";
-            iter++;
-
-            if (melhorSolucao.multaSolucao == 0) {
-                stop.store(true);
-            }
-        }
-
-        {
-            if(stop.load()) return;  // para se a flag for ativada
-        }
-    }
-}
-
-void SimulatedAnnealing(Solucao &solucao, const Setup &setup) {
-    srand(static_cast<unsigned int>(time(0)));
-
-    Solucao atualSolucao = *gulosao(&solucao, setup);
-    Solucao melhorSolucao = atualSolucao;
-
-    double temperaturaInicial = 1e5;
-    double temperaturaFinal = 1e-3;
-    double alpha = 0.92;
-    double temperatura = temperaturaInicial;
-    std::atomic<int> iter(0);
-    
-
-    std::ofstream outputFile("../data/simulated_annealing.csv");
-    outputFile << "Iteracao,Temperatura,Custo\n"; 
-
-    while (temperatura > temperaturaFinal) {
-        std::vector<std::thread> threads;
-        int chunkSize = L / NUM_THREADS;
-
-        for (int t = 0; t < NUM_THREADS; ++t){
-            int L_start = t * chunkSize;
-            int L_end = (t == NUM_THREADS - 1) ? L : L_start + chunkSize;
-            threads.push_back(
-                std::thread(
-                    MarkovChains, 
-                    t, L_start, L_end, 
-                    std::ref(atualSolucao), std::ref(melhorSolucao), 
-                    temperatura, std::ref(outputFile), 
-                    std::ref(iter)
-                )
-            );
-        }
-
-        for(auto& t : threads){
-            t.join();
-        }
-
-        {
-            if(stop.load()) break;  // para se a flag for ativada
-        }
-
-        // reduzir a temperatura após gerar a cadeia de Markov de tamanho L
-        temperatura *= alpha;
-
-        // aplicar a perturbação na solução atual após a cadeia de Markov
-        DoubleBridge(atualSolucao);
-        atualSolucao.calcularMulta(setup);
-    }
-
-    outputFile.close();
-    std::cout << "Encontrada na iteração " << iter << std::endl;
     solucao = melhorSolucao;
 }
