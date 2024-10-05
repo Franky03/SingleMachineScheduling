@@ -25,12 +25,12 @@ std::mutex mtx;
 std::atomic<bool> stop(false);
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) {
-    std::vector<int> metodos = {0,1,2,3,4,5,6};
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10};
     bool melhorou = false;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
-        switch (metodos[n]){ 
+        switch (metodos[n]){
             case 0:
                 melhorou = bestImprovementSwap(solucao, setup);
                 break;
@@ -47,19 +47,32 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup, 4);
                 break;
             case 5:
-                melhorou = bestImprovementSwapK(solucao, setup, rand() % 3 + 2);
+                melhorou = bestImprovementSwapK(solucao, setup, 2);
                 break;
             case 6:
                 melhorou = bestImprovement2opt(solucao, setup);
                 break;
+            case 7:
+                melhorou = bestImprovementShift(solucao, setup, 10);
+                break;
+            case 8:
+                melhorou = bestImprovementShift(solucao, setup, 12);
+                break;
+            case 9:
+                melhorou = bestImprovementShift(solucao, setup, 14);
+                break;
+            case 10:
+                melhorou = bestImprovementShift(solucao, setup, 8);
+                break;
         }
-        if(melhorou){   
-            metodos = {0,1,2,3,4,5,6};
+        if(melhorou){
+            metodos = {0,1,2,3,4,5,6,7,8,9,10};
         } else {
             metodos.erase(metodos.begin() + n);
         }
     }
 }
+
 
 void EmbaralhaPedidos(Solucao &solucao){
     static std::random_device rd;
@@ -118,6 +131,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             }
             
             DoubleBridge(novaSolucao);
+            if(iterILS % MAX_ITER_SEM_MELHORA == 0) EmbaralhaPedidos(novaSolucao);
             novaSolucao.calcularMulta(setup);
         
             iterILS++;

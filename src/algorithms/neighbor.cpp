@@ -86,32 +86,22 @@ bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k) {
     return false;
 }
 
-inline void insertKBlocos(Solucao& solucao, int i, int j, int k){
+inline void insertKBlocos(Solucao& solucao, int i, int j, int k) {
     int n = solucao.pedidos.size();
-    
-    if(i+k > n) k = n-i;
-    if(j+k > n) k = n-j;
 
-    std::vector<Pedido> bloco(solucao.pedidos.begin() + i, solucao.pedidos.begin() + i + k);
+    if (i + k > n) k = n - i;
+    if (j + k > n) k = n - j;
 
-    if (j > i) {  // Movendo para a direita
-        for (int idx = i; idx < j; ++idx) {
-            if (idx + k < n) {
-                solucao.pedidos[idx] = solucao.pedidos[idx + k];
-            }
-        }
-    } else if (j < i) {  // Movendo para a esquerda
-        for (int idx = i + k - 1; idx >= j; --idx) {
-            if (idx - k >= 0) {
-                solucao.pedidos[idx] = solucao.pedidos[idx - k];
-            }
-        }
+    // verifica se está movendo para a direita ou esquerda
+    if (j > i) {  // movendo bloco para a direita
+        std::rotate(solucao.pedidos.begin() + i, 
+                    solucao.pedidos.begin() + i + k, 
+                    solucao.pedidos.begin() + j + k);
+    } else if (j < i) {  // movendo bloco para a esquerda
+        std::rotate(solucao.pedidos.begin() + j, 
+                    solucao.pedidos.begin() + i, 
+                    solucao.pedidos.begin() + i + k);
     }
-
-    for (int idx = 0; idx < k; ++idx) {
-        solucao.pedidos[j + idx] = bloco[idx];
-    }
-
 }
 
 
