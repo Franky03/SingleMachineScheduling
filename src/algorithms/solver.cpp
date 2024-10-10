@@ -14,8 +14,8 @@
 #include <cassert>
 
 
-#define MAX_ITER 200
-#define MAX_ITER_ILS 400
+#define MAX_ITER 100
+#define MAX_ITER_ILS 200
 #define L 200
 #define NUM_THREADS 5
 #define MAX_ITER_SEM_MELHORA 25
@@ -24,8 +24,9 @@
 std::mutex mtx;
 std::atomic<bool> stop(false);
 
-void BuscaLocal(Solucao& solucao, const Setup& setup) {
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10};
+void BuscaLocal(Solucao& solucao, const Setup& setup) { 
+    // a complexidade da busca local vai ser a complexidade do movimento escolhido
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -50,7 +51,7 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementSwapK(solucao, setup, 2);
                 break;
             case 6:
-                melhorou = bestImprovement2opt(solucao, setup);
+                melhorou = bestImprovementSwapK(solucao, setup, 6);
                 break;
             case 7:
                 melhorou = bestImprovementShift(solucao, setup, 10);
@@ -64,9 +65,27 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
             case 10:
                 melhorou = bestImprovementShift(solucao, setup, 8);
                 break;
+            case 11:
+                melhorou = bestImprovementShift(solucao, setup, 6);
+                break;
+            case 12:
+                melhorou = bestImprovementShift(solucao, setup, 5);
+                break;
+            case 13:
+                melhorou = bestImprovementShift(solucao, setup, 7);
+                break;
+            case 14:
+                melhorou = bestImprovementShift(solucao, setup, 9);
+                break;
+            case 15:
+                melhorou = bestImprovementShift(solucao, setup, 11);
+                break;
+            case 16:
+                melhorou = bestImprovementShift(solucao, setup, 13);
+                break;
         }
         if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10};
+            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -93,14 +112,15 @@ void DoubleBridge(Solucao &solucao){
     auto itPos3 = itBegin + pos3;
 
     std::vector<Pedido> novoVetor;
-    novoVetor.reserve(n);
+    novoVetor.reserve(n); // O(n)
 
+    //insert -> linear on the number of elements inserted
     novoVetor.insert(novoVetor.end(), itBegin, itPos1); // A
     novoVetor.insert(novoVetor.end(), itPos3, solucao.pedidos.end()); // D
     novoVetor.insert(novoVetor.end(), itPos2, itPos3); // C
     novoVetor.insert(novoVetor.end(), itPos1, itPos2); // B
 
-    solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos
+    solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos O(1)
 }
 
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup) {
@@ -113,7 +133,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.8);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -130,8 +150,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 break;
             }
             
-            DoubleBridge(novaSolucao);
-            if(iterILS % MAX_ITER_SEM_MELHORA == 0) EmbaralhaPedidos(novaSolucao);
+            DoubleBridge(novaSolucao); // O(n)
             novaSolucao.calcularMulta(setup);
         
             iterILS++;
