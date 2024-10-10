@@ -15,10 +15,10 @@
 
 
 #define MAX_ITER 200
-#define MAX_ITER_ILS 400
+#define MAX_ITER_ILS 800
 #define L 200
 #define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 25
+#define MAX_ITER_SEM_MELHORA 50
 #define MAX_LOCAL_SEARCH 100
 
 std::mutex mtx;
@@ -59,7 +59,7 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup, 12);
                 break;
             case 9:
-                melhorou = bestImprovementShift(solucao, setup, 14);
+                melhorou = bestImprovementShift(solucao, setup, 13);
                 break;
             case 10:
                 melhorou = bestImprovementShift(solucao, setup, 8);
@@ -113,7 +113,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.8);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -131,7 +131,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             }
             
             DoubleBridge(novaSolucao);
-            if(iterILS % MAX_ITER_SEM_MELHORA == 0) EmbaralhaPedidos(novaSolucao);
+           
             novaSolucao.calcularMulta(setup);
         
             iterILS++;

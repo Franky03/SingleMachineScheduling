@@ -29,11 +29,13 @@ std::pair<double, double> rodarAlgoritmo(Solucao& solucao, const Setup& setup){
     return {solucao.multaSolucao, elapsed_seconds.count()};
 }
 
-void rodarExperimento(Solucao& solucao, const double valorOtimo, int numExecucoes, const std::string& instanceName, const Setup& setup){
+void rodarExperimento(Solucao &solucaoOriginal, const double valorOtimo, int numExecucoes, const std::string& instanceName, const Setup& setup){
     std::vector<double> resultadosMulta;
     std::vector<double> temposExecucao;
 
     for (int i = 0; i < numExecucoes; i++){
+        std::cout << "Running " << i+1 << "/" << numExecucoes << " Times." << std::endl;
+        Solucao solucao = solucaoOriginal;
         auto [multa, tempo] = rodarAlgoritmo(solucao, setup);
         resultadosMulta.push_back(multa);
         temposExecucao.push_back(tempo);
