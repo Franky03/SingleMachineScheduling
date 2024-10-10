@@ -11,26 +11,45 @@ struct CompararPedido { // para a fila de prioridade
 };
 
 
-Solucao *Construcao(Solucao* solucao, const Setup& setup ,double alpha){
+Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
     std::vector<Pedido> naoAlocados = solucao->pedidos;
     solucao->pedidos.clear();
-    // armazena os pedidos não alocados em uma fila de prioridade de acordo com a regra de comparação
+    
+    // complexidade O(n log n)
     std::priority_queue<Pedido, std::vector<Pedido>, CompararPedido> filaPrioridade(naoAlocados.begin(), naoAlocados.end());
-    std::vector<Pedido> RCL;
-    while (!filaPrioridade.empty()) {
-        while (RCL.size() < std::max(1, static_cast<int>(filaPrioridade.size() * alpha))) {
-            Pedido pedido = filaPrioridade.top();
-            filaPrioridade.pop();
-            RCL.push_back(pedido);
+    std::vector<Pedido> RCL; // Restricted Candidate List  
+
+    int numPedidos = filaPrioridade.size();
+    int limiteEstatico = numPedidos / 3;  // define o ponto de corte
+
+    // processa a primeira metade dos pedidos de forma estática
+    // O(n/3 log n)
+    for (int i = 0; i < limiteEstatico && !filaPrioridade.empty(); ++i) {
+        Pedido pedido = filaPrioridade.top();
+        filaPrioridade.pop();
+        solucao->pedidos.push_back(pedido);
+    }
+
+    // a partir da metade, processa aleatoriamente
+    while (!filaPrioridade.empty()) { // O(n)
+        // preenche a RCL com base no alpha, mas apenas para a segunda metade
+        while (RCL.size() < std::max(1, static_cast<int>(filaPrioridade.size() * alpha))) { // O(n - n/3) = O(2n/3) = O(n)
+            Pedido pedido = filaPrioridade.top(); // O(1)
+            filaPrioridade.pop(); // O(log n)
+            RCL.push_back(pedido); // O(1)
         }
+
+        // escolhe aleatoriamente a partir da RCL
         int indexEscolhido = rand() % RCL.size();
         Pedido pedidoEscolhido = RCL[indexEscolhido];
 
         solucao->pedidos.push_back(pedidoEscolhido);
 
+        // remove o escolhido da RCL
         RCL.erase(RCL.begin() + indexEscolhido);
     }
-    solucao->calcularMulta(setup);  
+
+    solucao->calcularMulta(setup);  // O(n)
     return solucao;
 }
 

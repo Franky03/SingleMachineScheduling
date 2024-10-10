@@ -31,6 +31,7 @@ struct hash_pair {
 class Setup {
 public:
     vector<vector<int>> s;
+    double valorOtimo;
 
     Setup() {}
     

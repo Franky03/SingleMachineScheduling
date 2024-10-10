@@ -6,3 +6,7 @@ Média da multa: 468
 Melhor multa: 468
 Média do tempo de execução: 499.647 segundos
 Gap em relação ao valor ótimo: 3.31126
+Média da multa: 537
+Melhor multa: 537
+Média do tempo de execução: 7.02376 segundos
+Gap em relação ao valor ótimo: 18.543
