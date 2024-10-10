@@ -13,15 +13,15 @@
 
 namespace fs = std::filesystem;
 
-double calcularGap(double optimal, double found){
+double calcularGapMain(double optimal, double found){
     if (optimal == 0) return 0;
     return ((found - optimal) / optimal) * 100;
 }
 
-std::pair<double, double> rodarAlgoritmo(Solucao& solucao, const Setup& setup){
+std::pair<double, double> rodarAlgoritmo(Solucao& solucao, const Setup& setup, const std::string& instanceName){
     auto start = std::chrono::high_resolution_clock::now();
 
-    ILS_Opt(solucao, setup);
+    ILS_Opt(solucao, setup, instanceName);
 
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed_seconds = end - start;
@@ -34,7 +34,7 @@ void rodarExperimento(Solucao& solucao, const double valorOtimo, int numExecucoe
     std::vector<double> temposExecucao;
 
     for (int i = 0; i < numExecucoes; i++){
-        auto [multa, tempo] = rodarAlgoritmo(solucao, setup);
+        auto [multa, tempo] = rodarAlgoritmo(solucao, setup, instanceName);
         resultadosMulta.push_back(multa);
         temposExecucao.push_back(tempo);
     }
@@ -44,7 +44,7 @@ void rodarExperimento(Solucao& solucao, const double valorOtimo, int numExecucoe
 
     double melhorMulta = *std::min_element(resultadosMulta.begin(), resultadosMulta.end());
 
-    double gap = calcularGap(valorOtimo, melhorMulta);
+    double gap = calcularGapMain(valorOtimo, melhorMulta);
 
     std::string nomeArquivo = "../results_ils/" + instanceName + "_resultados.txt";
     std::ofstream arquivoResultado(nomeArquivo);
@@ -95,6 +95,7 @@ int main(){
         std::cout << "\033[95mInstância: " << instanceName << "\033[0m" << std::endl;
         
         double valorOtimo = optimal_values[instanceName];
+        setup.valorOtimo = valorOtimo;
 
         rodarExperimento(solucao, valorOtimo, numExecucoes, instanceName, setup);
     }

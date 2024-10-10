@@ -1,8 +1,7 @@
 Resultados para a instância: n60A
 
-Número de execuções: 1
 Valor ótimo: 453
-Média da multa: 537
+Média da multa: 726.467
 Melhor multa: 537
-Média do tempo de execução: 7.02376 segundos
+Média do tempo de execução: 0.074442 segundos
 Gap em relação ao valor ótimo: 18.543
