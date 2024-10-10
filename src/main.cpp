@@ -48,7 +48,7 @@ void rodarExperimento(Solucao &solucaoOriginal, const double valorOtimo, int num
 
     double gap = calcularGapMain(valorOtimo, melhorMulta);
 
-    std::string nomeArquivo = "../results_ils/" + instanceName + "_resultados.txt";
+    std::string nomeArquivo = "../resultados_copa_apa/" + instanceName + "_resultados.txt";
     std::ofstream arquivoResultado(nomeArquivo);
 
     if (arquivoResultado.is_open()) {
@@ -85,7 +85,7 @@ int main(){
 
     optimalValuesFile.close();
 
-    std::string instancesPath = "../tests/";
+    std::string instancesPath = "../copa_apa/";
 
     int numExecucoes = 1;
 
@@ -95,8 +95,11 @@ int main(){
         readInstance(instancePath, num_pedidos, solucao.pedidos, setup.s);
 
         std::cout << "\033[95mInstância: " << instanceName << "\033[0m" << std::endl;
-        
-        double valorOtimo = optimal_values[instanceName];
+        double valorOtimo;
+        if(optimal_values[instanceName])  valorOtimo = optimal_values[instanceName];
+        else {
+            valorOtimo = 0;
+        }
         setup.valorOtimo = valorOtimo;
 
         rodarExperimento(solucao, valorOtimo, numExecucoes, instanceName, setup);
