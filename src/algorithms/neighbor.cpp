@@ -39,10 +39,42 @@ double InferenciaDeltaMultaSwap(Solucao& solucao, const Setup& setup, int i, int
 bool bestImprovementSwap(Solucao& solucao, const Setup& setup) {
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1;
-
+    double multa_atual, delta_multa;
+    
     for (int i = 0; i < solucao.pedidos.size() - 1; i++) {
         for (int j = i + 1; j < solucao.pedidos.size(); j++) {
-            double delta_multa = InferenciaDeltaMultaSwap(solucao, setup, i, j, 1);
+            multa_atual = solucao.multaSolucao;
+            swapKBlocos(solucao, i, j, 1);
+
+            int inicio = std::min(i, j);
+
+            double multaAcumulada = (inicio == 0) ? 0 : solucao.multaAcumulada[inicio - 1];
+            int tempo_atual = (inicio == 0) ? 0 : solucao.tempoAcumulado[inicio - 1];
+            int ultimoPedidoId = (inicio == 0) ? 0 : solucao.pedidos[inicio - 1].id;
+
+            int lose_ = 0;
+
+            for (int l = inicio; l < solucao.pedidos.size(); ++l) {
+                int pedidoAtualId = solucao.pedidos[l].id;
+                if (l==0) {
+                    tempo_atual += setup.obterSetupPrimeiroPedido(solucao.pedidos[0].id);
+                } else {
+                    tempo_atual += setup.obterSetup(ultimoPedidoId, pedidoAtualId);
+                }
+                tempo_atual += solucao.pedidos[l].tempo_producao;
+                multaAcumulada += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
+
+                if(tempo_atual > solucao.tempoAcumulado[l] && multaAcumulada > solucao.multaAcumulada[l]) {
+                    lose_=1;
+                    break;
+                }
+
+                ultimoPedidoId = pedidoAtualId;
+            }
+
+            swapKBlocos(solucao, j, i, 1);
+            if (lose_ == 1) continue;
+            delta_multa = multaAcumulada - multa_atual;
             
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;
@@ -145,9 +177,10 @@ bool bestImprovementInsert(Solucao& solucao, const Setup& setup) {
     return false;
 }
 
-bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
+bool bestImprovementReinsertion(Solucao& solucao, const Setup& setup, int k) {
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1, best_k = -1;
+    double delta_multa, multa_atual;
 
     int size = solucao.pedidos.size();
 
@@ -157,7 +190,39 @@ bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
             if (i == j) continue;
             if (i + k > size) k_final = size - i;
 
-            double delta_multa = InferenciaDeltaMultaInsert(solucao, setup, i, j, k_final);
+            multa_atual = solucao.multaSolucao;
+            insertKBlocos(solucao, i, j, k_final);
+
+            int inicio = std::min(i, j);
+
+            double multaAcumulada = (inicio == 0) ? 0 : solucao.multaAcumulada[inicio - 1];
+            int tempo_atual = (inicio == 0) ? 0 : solucao.tempoAcumulado[inicio - 1];
+            int ultimoPedidoId = (inicio == 0) ? 0 : solucao.pedidos[inicio - 1].id;
+
+            int lose_ = 0;
+            for (int l = inicio; l < solucao.pedidos.size(); ++l) {
+                int pedidoAtualId = solucao.pedidos[l].id;
+                if (l==0) {
+                    tempo_atual += setup.obterSetupPrimeiroPedido(solucao.pedidos[0].id);
+                } else {
+                    tempo_atual += setup.obterSetup(ultimoPedidoId, pedidoAtualId);
+                }
+                tempo_atual += solucao.pedidos[l].tempo_producao;
+                multaAcumulada += solucao.calcularMultaPedido(tempo_atual, solucao.pedidos[l]);
+
+                if(tempo_atual > solucao.tempoAcumulado[l] && multaAcumulada > solucao.multaAcumulada[l]) {
+                    lose_=1;
+                    break;
+                }
+                
+                ultimoPedidoId = pedidoAtualId;
+            }
+
+            insertKBlocos(solucao, j, i, k_final);
+
+            if (lose_ == 1) continue;
+
+            delta_multa = multaAcumulada - multa_atual;
 
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;

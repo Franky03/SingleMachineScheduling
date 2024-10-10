@@ -28,6 +28,7 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
     // a complexidade da busca local vai ser a complexidade do movimento escolhido
     std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     bool melhorou = false;
+    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
@@ -36,16 +37,16 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementSwap(solucao, setup);
                 break;
             case 1:
-                melhorou = bestImprovementInsert(solucao, setup);
+                melhorou = bestImprovementReinsertion(solucao, setup,1);
                 break;
             case 2:
-                melhorou = bestImprovementShift(solucao, setup, 2);
+                melhorou = bestImprovementReinsertion(solucao, setup, 2);
                 break;
             case 3:
-                melhorou = bestImprovementShift(solucao, setup,3);
+                melhorou = bestImprovementReinsertion(solucao, setup,3);
                 break;
             case 4:
-                melhorou = bestImprovementShift(solucao, setup, 4);
+                melhorou = bestImprovementReinsertion(solucao, setup, 4);
                 break;
             case 5:
                 melhorou = bestImprovementSwapK(solucao, setup, 2);
@@ -54,34 +55,34 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementSwapK(solucao, setup, 6);
                 break;
             case 7:
-                melhorou = bestImprovementShift(solucao, setup, 10);
+                melhorou = bestImprovementReinsertion(solucao, setup, 10);
                 break;
             case 8:
-                melhorou = bestImprovementShift(solucao, setup, 12);
+                melhorou = bestImprovementReinsertion(solucao, setup, 12);
                 break;
             case 9:
-                melhorou = bestImprovementShift(solucao, setup, 14);
+                melhorou = bestImprovementReinsertion(solucao, setup, 14);
                 break;
             case 10:
-                melhorou = bestImprovementShift(solucao, setup, 8);
+                melhorou = bestImprovementReinsertion(solucao, setup, 8);
                 break;
             case 11:
-                melhorou = bestImprovementShift(solucao, setup, 6);
+                melhorou = bestImprovementReinsertion(solucao, setup, 6);
                 break;
             case 12:
-                melhorou = bestImprovementShift(solucao, setup, 5);
+                melhorou = bestImprovementReinsertion(solucao, setup, 5);
                 break;
             case 13:
-                melhorou = bestImprovementShift(solucao, setup, 7);
+                melhorou = bestImprovementReinsertion(solucao, setup, 7);
                 break;
             case 14:
-                melhorou = bestImprovementShift(solucao, setup, 9);
+                melhorou = bestImprovementReinsertion(solucao, setup, 9);
                 break;
             case 15:
-                melhorou = bestImprovementShift(solucao, setup, 11);
+                melhorou = bestImprovementReinsertion(solucao, setup, 11);
                 break;
             case 16:
-                melhorou = bestImprovementShift(solucao, setup, 13);
+                melhorou = bestImprovementReinsertion(solucao, setup, 13);
                 break;
         }
         if(melhorou){
