@@ -86,6 +86,20 @@ bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k) {
     return false;
 }
 
+void allImprovementSwap(Solucao& solucao, const Setup& setup) {
+    for (int i = 0; i < solucao.pedidos.size() - 1; i++) {
+        for (int j = i + 1; j < solucao.pedidos.size(); j++) {
+            double delta_multa = InferenciaDeltaMultaSwap(solucao, setup, i, j, 1);
+            
+            // Se a troca resultar em uma melhora, aplica o movimento e retorna
+            if (delta_multa < 0) {
+                swapKBlocos(solucao, i, j, 1);
+                solucao.calcularMulta(setup);  // Atualiza a multa total após a troca
+            }
+        }
+    }
+}
+
 inline void insertKBlocos(Solucao& solucao, int i, int j, int k) {
     int n = solucao.pedidos.size();
 
@@ -177,6 +191,26 @@ bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
     return false;
 }
 
+void allImprovementShift(Solucao& solucao, const Setup& setup, int k) {
+    int size = solucao.pedidos.size();
+
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            int k_final = k;
+            if (i == j) continue; // Evita mover para o mesmo lugar
+            if (i + k > size) k_final = size - i; // Ajusta o tamanho de k para não ultrapassar os limites
+
+            double delta_multa = InferenciaDeltaMultaInsert(solucao, setup, i, j, k_final);
+
+            if (delta_multa < 0) {
+                // Aplica a melhoria imediatamente
+                insertKBlocos(solucao, i, j, k_final);
+                solucao.calcularMulta(setup); // Atualiza a multa total após a inserção
+            }
+        }
+    }
+}
+
 double InferenciaDeltaMulta2Opt(Solucao& solucao, const Setup& setup, int i, int j) {
     double multa_atual = solucao.multaSolucao;
     std::reverse(solucao.pedidos.begin() + i, solucao.pedidos.begin() + j + 1);
@@ -208,4 +242,18 @@ bool bestImprovement2opt(Solucao& solucao, const Setup& setup) {
     }
 
     return false;
+}
+
+void allImprovement2opt(Solucao& solucao, const Setup& setup) {
+    for (int i = 1; i < solucao.pedidos.size() - 2; i++) {
+        for (int j = i + 1; j < solucao.pedidos.size() - 1; j++) {
+            double delta_multa = InferenciaDeltaMulta2Opt(solucao, setup, i, j);
+
+            if (delta_multa < 0) {
+                // Aplica a melhoria imediatamente, invertendo a subsequência entre i e j
+                std::reverse(solucao.pedidos.begin() + i, solucao.pedidos.begin() + j + 1);
+                solucao.calcularMulta(setup); // Atualiza a multa após aplicar a troca
+            }
+        }
+    }
 }

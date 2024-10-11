@@ -13,13 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-
 #define MAX_ITER 200
-#define MAX_ITER_ILS 800
-#define L 200
-#define NUM_THREADS 5
-#define MAX_ITER_SEM_MELHORA 50
-#define MAX_LOCAL_SEARCH 100
+#define MAX_ITER_ILS 400
 
 std::mutex mtx;
 std::mutex mtxResultados;  
@@ -143,6 +138,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
         }
 
         novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
+        //std::cout << "Multa Inicial: " << novaSolucao.multaSolucao << std::endl;
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -182,6 +178,22 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                 << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
+
+                std::string nomeArquivo = "../resultados_copa_apa/resultados.txt";
+                std::ofstream arquivoResultado(nomeArquivo);
+
+                if (arquivoResultado.is_open()) {
+                    arquivoResultado << "Melhor solução encontrada: " << melhorLocal.multaSolucao << "\n";
+                    for (int i = 0; i < melhorLocal.pedidos.size(); ++i) {
+                        arquivoResultado << melhorLocal.pedidos[i].id << " ";
+                    }
+
+                    arquivoResultado.close();
+                } else {
+                    std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
+                }
+
+
             }
            
         }
@@ -201,6 +213,7 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     std::vector<double> temposExecucaoLocalSearch;
 
     solucao.calcularMulta(setup);
+
 
     Solucao melhorSolucao = solucao;
 

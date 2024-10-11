@@ -1,4 +1,5 @@
 #include "guloso.h"
+#include "neighbor.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -49,7 +50,10 @@ Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
         RCL.erase(RCL.begin() + indexEscolhido);
     }
 
-    solucao->calcularMulta(setup);  // O(n)
+
+    allImprovementSwap(*solucao, setup);
+    allImprovementShift(*solucao, setup, 1);
+
     return solucao;
 }
 
