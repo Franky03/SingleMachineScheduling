@@ -61,13 +61,19 @@ bool bestImprovementSwap(Solucao& solucao, const Setup& setup) {
     return false;
 }
 
-bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k) {
+bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k, std::vector<double> &listaDelta , double maxDeltaMulta = std::numeric_limits<double>::max(), int learning=true) {
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1;
 
     for (int i = 0; i <= solucao.pedidos.size() - k; i++) {
         for (int j = i + k; j <= solucao.pedidos.size() - k; j++) {
             double delta_multa = InferenciaDeltaMultaSwap(solucao, setup, i, j, k);
+
+            if (delta_multa > maxDeltaMulta) continue;
+
+            if(learning){
+                listaDelta.push_back(delta_multa);
+            }
 
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;
@@ -91,10 +97,9 @@ void allImprovementSwap(Solucao& solucao, const Setup& setup) {
         for (int j = i + 1; j < solucao.pedidos.size(); j++) {
             double delta_multa = InferenciaDeltaMultaSwap(solucao, setup, i, j, 1);
             
-            // Se a troca resultar em uma melhora, aplica o movimento e retorna
             if (delta_multa < 0) {
                 swapKBlocos(solucao, i, j, 1);
-                solucao.calcularMulta(setup);  // Atualiza a multa total após a troca
+                solucao.calcularMulta(setup);  // atualiza a multa total após a troca
             }
         }
     }

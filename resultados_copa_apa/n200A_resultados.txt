@@ -1,0 +1,8 @@
+Resultados para a instância: n200A
+
+Número de execuções: 1
+Valor ótimo: 0
+Média da multa: 2.79378e+06
+Melhor multa: 2.79378e+06
+Média do tempo de execução: 19272.9 segundos
+Gap em relação ao valor ótimo: 0

@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 200
-#define MAX_ITER_ILS 400
+#define MAX_ITER 600
+#define MAX_ITER_ILS 600
 
 std::mutex mtx;
 std::mutex mtxResultados;  
@@ -29,14 +29,29 @@ double calcularGap(double optimal, double found){
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) { 
     // a complexidade da busca local vai ser a complexidade do movimento escolhido
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18, 19, 20, 21};
     bool melhorou = false;
+
+    std::vector<double> listaDeltaMultas;
+    bool learningPhase = true;
+    double theta = 0.95;
+    
+    for (int iter = 0; iter < iteracoesDeAprendizado; ++iter) {
+        melhorou = bestImprovementSwap(solucao, setup, listaDeltaMultas);
+    }
+
+    learningPhase = false;
+
+    std::sort(listaDeltaMultas.begin(), listaDeltaMultas.end());
+    int index = static_cast<int>(theta * listaDeltaMultas.size());
+
+    double threeshold = listaDeltaMultas[index];
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){
             case 0:
-                melhorou = bestImprovementSwap(solucao, setup);
+                melhorou = bestImprovementSwap(solucao, setup, listaDeltaMultas,threeshold, learningPhase);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao, setup);
@@ -86,9 +101,24 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
             case 16:
                 melhorou = bestImprovementShift(solucao, setup, 13);
                 break;
+            case 17:
+                melhorou = bestImprovementShift(solucao, setup, 20);
+                break;
+            case 18:
+                melhorou = bestImprovementShift(solucao, setup, 25);
+                break;
+            case 19:
+                melhorou = bestImprovementShift(solucao, setup, 30);
+                break;
+            case 20:
+                melhorou = bestImprovementShift(solucao, setup, 40);
+                break;
+            case 21:
+                melhorou = bestImprovementShift(solucao, setup, 50);
+                break;
         }
         if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18, 19, 20, 21};
         } else {
             metodos.erase(metodos.begin() + n);
         }
