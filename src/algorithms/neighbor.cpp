@@ -61,7 +61,7 @@ bool bestImprovementSwap(Solucao& solucao, const Setup& setup) {
     return false;
 }
 
-bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k, std::vector<double> &listaDelta , double maxDeltaMulta = std::numeric_limits<double>::max(), int learning=true) {
+bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k) {
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1;
 
@@ -69,11 +69,6 @@ bool bestImprovementSwapK(Solucao& solucao, const Setup& setup, int k, std::vect
         for (int j = i + k; j <= solucao.pedidos.size() - k; j++) {
             double delta_multa = InferenciaDeltaMultaSwap(solucao, setup, i, j, k);
 
-            if (delta_multa > maxDeltaMulta) continue;
-
-            if(learning){
-                listaDelta.push_back(delta_multa);
-            }
 
             if (delta_multa < bestDeltaMulta) {
                 bestDeltaMulta = delta_multa;
@@ -261,4 +256,38 @@ void allImprovement2opt(Solucao& solucao, const Setup& setup) {
             }
         }
     }
+}
+
+inline void reverseKBlocos(Solucao& solucao, int i, int k) {
+    int limite = std::min(i + k, (int)solucao.pedidos.size());
+    std::reverse(solucao.pedidos.begin() + i, solucao.pedidos.begin() + limite);
+}
+
+double InferenciaDeltaMultaReverse(Solucao& solucao, const Setup& setup, int i, int k) {
+    double multa_atual = solucao.multaSolucao;
+    reverseKBlocos(solucao, i, k);
+    double multa_depois = calcularMultaAcumulada(solucao, setup, i);
+    reverseKBlocos(solucao, i, k);
+    return multa_depois - multa_atual;
+}
+
+bool bestImprovementReverse(Solucao& solucao, const Setup& setup, int k) {
+    double bestDeltaMulta = 0;
+    int best_i = -1;
+
+    for (int i = 0; i < solucao.pedidos.size(); i++) {
+        double delta_multa = InferenciaDeltaMultaReverse(solucao, setup, i, k);
+        if (delta_multa < bestDeltaMulta) {
+            bestDeltaMulta = delta_multa;
+            best_i = i;
+        }
+    }
+
+    if (bestDeltaMulta < 0) {
+        reverseKBlocos(solucao, best_i, k);
+        solucao.calcularMulta(setup);
+        return true;
+    }
+
+    return false;
 }

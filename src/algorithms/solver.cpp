@@ -13,8 +13,9 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 600
-#define MAX_ITER_ILS 600
+
+#define MAX_ITER 100
+#define MAX_ITER_ILS 200
 
 std::mutex mtx;
 std::mutex mtxResultados;  
@@ -29,29 +30,15 @@ double calcularGap(double optimal, double found){
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) { 
     // a complexidade da busca local vai ser a complexidade do movimento escolhido
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18, 19, 20, 21};
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
     bool melhorou = false;
-
-    std::vector<double> listaDeltaMultas;
-    bool learningPhase = true;
-    double theta = 0.95;
-    
-    for (int iter = 0; iter < iteracoesDeAprendizado; ++iter) {
-        melhorou = bestImprovementSwap(solucao, setup, listaDeltaMultas);
-    }
-
-    learningPhase = false;
-
-    std::sort(listaDeltaMultas.begin(), listaDeltaMultas.end());
-    int index = static_cast<int>(theta * listaDeltaMultas.size());
-
-    double threeshold = listaDeltaMultas[index];
+    int count = 0;
 
     while(!metodos.empty()){
         int n = rand() % metodos.size();
         switch (metodos[n]){
             case 0:
-                melhorou = bestImprovementSwap(solucao, setup, listaDeltaMultas,threeshold, learningPhase);
+                melhorou = bestImprovementSwap(solucao, setup);
                 break;
             case 1:
                 melhorou = bestImprovementInsert(solucao, setup);
@@ -78,7 +65,7 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup, 12);
                 break;
             case 9:
-                melhorou = bestImprovementShift(solucao, setup, 13);
+                melhorou = bestImprovementShift(solucao, setup, 14);
                 break;
             case 10:
                 melhorou = bestImprovementShift(solucao, setup, 8);
@@ -101,24 +88,10 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
             case 16:
                 melhorou = bestImprovementShift(solucao, setup, 13);
                 break;
-            case 17:
-                melhorou = bestImprovementShift(solucao, setup, 20);
-                break;
-            case 18:
-                melhorou = bestImprovementShift(solucao, setup, 25);
-                break;
-            case 19:
-                melhorou = bestImprovementShift(solucao, setup, 30);
-                break;
-            case 20:
-                melhorou = bestImprovementShift(solucao, setup, 40);
-                break;
-            case 21:
-                melhorou = bestImprovementShift(solucao, setup, 50);
-                break;
         }
         if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16, 17, 18, 19, 20, 21};
+            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+            count++;
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -167,8 +140,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
-        //std::cout << "Multa Inicial: " << novaSolucao.multaSolucao << std::endl;
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.8);
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
@@ -222,8 +194,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 } else {
                     std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
                 }
-
-
             }
            
         }
@@ -243,7 +213,6 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     std::vector<double> temposExecucaoLocalSearch;
 
     solucao.calcularMulta(setup);
-
 
     Solucao melhorSolucao = solucao;
 
