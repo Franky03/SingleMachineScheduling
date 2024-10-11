@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 200
-#define MAX_ITER_ILS 400
+#define MAX_ITER 600
+#define MAX_ITER_ILS 600
 
 std::mutex mtx;
 std::mutex mtxResultados;  
@@ -29,7 +29,7 @@ double calcularGap(double optimal, double found){
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) { 
     // a complexidade da busca local vai ser a complexidade do movimento escolhido
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -86,9 +86,15 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
             case 16:
                 melhorou = bestImprovementShift(solucao, setup, 13);
                 break;
+            case 17:
+                melhoru = bestImprovementShift(solucao, setup, 20);
+                break;
+            case 18:
+                melhoru = bestImprovementShift(solucao, setup, 40);
+                break;
         }
         if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
         } else {
             metodos.erase(metodos.begin() + n);
         }
