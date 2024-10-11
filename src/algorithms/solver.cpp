@@ -87,10 +87,10 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 melhorou = bestImprovementShift(solucao, setup, 13);
                 break;
             case 17:
-                melhoru = bestImprovementShift(solucao, setup, 20);
+                melhorou = bestImprovementShift(solucao, setup, 20);
                 break;
             case 18:
-                melhoru = bestImprovementShift(solucao, setup, 40);
+                melhorou = bestImprovementShift(solucao, setup, 40);
                 break;
         }
         if(melhorou){
