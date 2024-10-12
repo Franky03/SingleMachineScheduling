@@ -7,6 +7,7 @@
 #include <thread>
 #include <atomic>
 #include <mutex>
+#include <sstream>
 #include <queue>
 #include <unordered_set>
 #include <chrono>
@@ -132,6 +133,62 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos O(1)
 }
 
+void SmoothPertubation(Solucao& solucao, const Setup& setup) {
+    int n = solucao.pedidos.size();
+    int idx = rand() % n;
+    
+    Pedido pedido = solucao.pedidos[idx];
+    solucao.pedidos.erase(solucao.pedidos.begin() + idx);
+    
+    int novaPos = rand() % n;
+    
+    solucao.pedidos.insert(solucao.pedidos.begin() + novaPos, pedido);
+    
+    solucao.calcularMulta(setup);
+}
+
+void FineTuning(Solucao& solucao, const Setup& setup, const std::string& nomeArquivo) {
+    std::vector<int> idsPedidos;
+    
+    std::ifstream arquivo(nomeArquivo);
+    if (!arquivo.is_open()) {
+        std::cerr << "Erro ao abrir o arquivo: " << nomeArquivo << std::endl;
+        return;
+    }
+
+    std::string linha;
+
+    if (std::getline(arquivo, linha)) {
+        std::stringstream ss(linha);
+        int pedidoId;
+
+        while (ss >> pedidoId) {
+            idsPedidos.push_back(pedidoId); 
+        }
+    }
+
+    arquivo.close();
+
+    std::vector<Pedido> pedidosReordenados;
+    std::unordered_map<int, Pedido> pedidosMap;
+    for (const auto& pedido : solucao.pedidos) {
+        pedidosMap[pedido.id] = pedido;
+    }
+
+    for(const auto& id : idsPedidos){
+        auto it = pedidosMap.find(id); 
+        if (it != pedidosMap.end()) {
+            pedidosReordenados.push_back(it->second);
+        }
+        else {
+            std::cerr << "Pedido não encontrado: " << id << std::endl;
+        }
+    }
+
+    solucao.pedidos = pedidosReordenados;
+    solucao.calcularMulta(setup);
+}
+
 void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup, 
                 std::vector<double>& resultadosMultaLocalSearch, std::vector<double>& temposExecucaoLocalSearch) {
     Solucao melhorSolucao = melhorSolucaoGlobal;  // inicializa melhorSolucao como uma cópia da solução global
@@ -143,8 +200,8 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
-        //std::cout << "Multa Inicial: " << novaSolucao.multaSolucao << std::endl;
+        FineTuning(melhorSolucao, setup, "../fine_tuning/n200_ft.txt");
+        novaSolucao = melhorSolucao;
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
