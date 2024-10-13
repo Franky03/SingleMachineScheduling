@@ -1,7 +1,8 @@
 Resultados para a instância: n60L
 
+Média do tempo de execução: 9.1983e-06 segundos
+Número de execuções: 10
 Valor ótimo: 332941
-Média da multa: 386943
-Melhor multa: 386943
-Média do tempo de execução: 0.000299813 segundos
-Gap em relação ao valor ótimo: 16.2197
+Média da multa: 1133970
+Melhor multa: 1077899
+Gap em relação ao valor ótimo: 224

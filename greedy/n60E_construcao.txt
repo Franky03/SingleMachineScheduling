@@ -1,7 +1,8 @@
 Resultados para a instância: n60E
 
+Média do tempo de execução: 8.168e-06 segundos
+Número de execuções: 10
 Valor ótimo: 58935
-Média da multa: 82523
-Melhor multa: 82523
-Média do tempo de execução: 0.00162655 segundos
-Gap em relação ao valor ótimo: 40.0238
+Média da multa: 503687
+Melhor multa: 471332
+Gap em relação ao valor ótimo: 700
