@@ -1,8 +1,8 @@
 Resultados para a instância: n60C
 
-Média do tempo de execução: 8.6992e-06 segundos
+Média do tempo de execução: 7.7203e-06 segundos
+Gap em relação ao valor ótimo: 0.00
 Número de execuções: 10
 Valor ótimo: 0
 Média da multa: 384854
 Melhor multa: 355889
-Gap em relação ao valor ótimo: 0

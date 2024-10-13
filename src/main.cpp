@@ -97,12 +97,14 @@ void rodarConstrucaoApenas(Solucao &solucaoOriginal, const Setup& setup, const s
         
         arquivoResultado << "Resultados para a instância: " << instanceName << "\n\n";
         arquivoResultado << "Média do tempo de execução: " << mediaTempo << " segundos\n";
+        arquivoResultado << std::fixed << std::setprecision(2);
+        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
         arquivoResultado << "Número de execuções: " << 10 << "\n";
         arquivoResultado << std::fixed << std::setprecision(0);
         arquivoResultado << "Valor ótimo: " << setup.valorOtimo << "\n";
         arquivoResultado << "Média da multa: " << mediaMulta << "\n";
         arquivoResultado << "Melhor multa: " << melhorMulta << "\n";
-        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
+        
 
         arquivoResultado.close();
         std::cout << "Resultados salvos em: " << nomeArquivo << std::endl;
@@ -145,7 +147,7 @@ int main(){
         }
         setup.valorOtimo = valorOtimo;
 
-        rodarExperimento(solucao, valorOtimo, numExecucoes, instanceName, setup);
+        rodarConstrucaoApenas(solucao, setup, instanceName);
     }
 
     
