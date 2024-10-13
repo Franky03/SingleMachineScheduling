@@ -28,79 +28,38 @@ double calcularGap(double optimal, double found){
 }
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) { 
-    // a complexidade da busca local vai ser a complexidade do movimento escolhido
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+    // A complexidade da busca local vai ser a complexidade do movimento escolhido
+    std::vector<int> metodos = {0, 1, 2, 3, 4, 5};
     bool melhorou = false;
 
-    while(!metodos.empty()){
+    while (!metodos.empty()) {
         int n = rand() % metodos.size();
-        switch (metodos[n]){
+        switch (metodos[n]) {
             case 0:
                 melhorou = bestImprovementSwap(solucao, setup);
                 break;
             case 1:
-                melhorou = bestImprovementInsert(solucao, setup);
-                break;
-            case 2:
-                melhorou = bestImprovementShift(solucao, setup, 2);
-                break;
-            case 3:
-                melhorou = bestImprovementShift(solucao, setup,3);
-                break;
-            case 4:
-                melhorou = bestImprovementShift(solucao, setup, 4);
-                break;
-            case 5:
                 melhorou = bestImprovementSwapK(solucao, setup, 2);
                 break;
-            case 6:
+            case 2:
                 melhorou = bestImprovementSwapK(solucao, setup, 6);
                 break;
-            case 7:
-                melhorou = bestImprovementShift(solucao, setup, 10);
+            case 3:
+                melhorou = bestImprovementReinsert(solucao, setup, 1);
                 break;
-            case 8:
-                melhorou = bestImprovementShift(solucao, setup, 12);
+            case 4: 
+                melhorou = bestImprovementReinsert(solucao, setup, 2);
                 break;
-            case 9:
-                melhorou = bestImprovementShift(solucao, setup, 13);
-                break;
-            case 10:
-                melhorou = bestImprovementShift(solucao, setup, 8);
-                break;
-            case 11:
-                melhorou = bestImprovementShift(solucao, setup, 6);
-                break;
-            case 12:
-                melhorou = bestImprovementShift(solucao, setup, 5);
-                break;
-            case 13:
-                melhorou = bestImprovementShift(solucao, setup, 7);
-                break;
-            case 14:
-                melhorou = bestImprovementShift(solucao, setup, 9);
-                break;
-            case 15:
-                melhorou = bestImprovementShift(solucao, setup, 11);
-                break;
-            case 16:
-                melhorou = bestImprovementShift(solucao, setup, 13);
-                break;
-            case 17:
-                melhorou = bestImprovementShift(solucao, setup, 20);
-                break;
-            case 18:
-                melhorou = bestImprovementShift(solucao, setup, 40);
-                break;
+            case 5:
+                melhorou = bestImprovement2opt(solucao, setup);
         }
-        if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+        if (melhorou) {
+            metodos = {0, 1, 2, 3, 4, 5};
         } else {
             metodos.erase(metodos.begin() + n);
         }
     }
 }
-
 
 void EmbaralhaPedidos(Solucao &solucao){
     static std::random_device rd;
@@ -132,9 +91,8 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos O(1)
 }
 
-void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup, 
-                std::vector<double>& resultadosMultaLocalSearch, std::vector<double>& temposExecucaoLocalSearch) {
-    Solucao melhorSolucao = melhorSolucaoGlobal;  // inicializa melhorSolucao como uma cópia da solução global
+void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const Setup& setup) {
+    Solucao melhorSolucao = melhorSolucaoGlobal; 
     Solucao novaSolucao;
 
     for (int i = iterStart; i < iterEnd; ++i) {
@@ -144,22 +102,12 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
         }
 
         novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
-        //std::cout << "Multa Inicial: " << novaSolucao.multaSolucao << std::endl;
         Solucao melhorLocal = novaSolucao; 
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {    
-            auto start = std::chrono::high_resolution_clock::now();
-            BuscaLocal(novaSolucao, setup);
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
 
-            {
-                std::lock_guard<std::mutex> lock(mtxResultados);
-                resultadosMultaLocalSearch.push_back(novaSolucao.multaSolucao);
-                temposExecucaoLocalSearch.push_back(elapsed_seconds.count());
-                ++numExecLocalSearch;
-            }
+            BuscaLocal(novaSolucao, setup);
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  
@@ -177,29 +125,12 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             iterILS++;
         }
 
-        // se a melhor solução local for melhor que a melhor solução global
         {
-            std::lock_guard<std::mutex> lock(mtx);  // trava o mutex durante a comparação
+            std::lock_guard<std::mutex> lock(mtx);
             if (melhorLocal.multaSolucao < melhorSolucaoGlobal.multaSolucao) {
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                 << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
-
-                std::string nomeArquivo = "../resultados_copa_apa/resultados.txt";
-                std::ofstream arquivoResultado(nomeArquivo);
-
-                if (arquivoResultado.is_open()) {
-                    arquivoResultado << "Melhor solução encontrada: " << melhorLocal.multaSolucao << "\n";
-                    for (int i = 0; i < melhorLocal.pedidos.size(); ++i) {
-                        arquivoResultado << melhorLocal.pedidos[i].id << " ";
-                    }
-
-                    arquivoResultado.close();
-                } else {
-                    std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
-                }
-
-
             }
            
         }
@@ -220,7 +151,6 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
 
     solucao.calcularMulta(setup);
 
-
     Solucao melhorSolucao = solucao;
 
     stop.store(false);
@@ -229,8 +159,7 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     for (int t = 0; t < numThreads; ++t) {
         int iterStart = t * iterPerThread;
         int iterEnd = (t == numThreads - 1) ? MAX_ITER : iterStart + iterPerThread;
-        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), iterStart, iterEnd, std::ref(setup),
-                                std::ref(resultadosMultaLocalSearch), std::ref(temposExecucaoLocalSearch));
+        threads.emplace_back(ILS_thread, std::ref(melhorSolucao), iterStart, iterEnd, std::ref(setup));
     }
 
     for (auto& th : threads) {
@@ -238,30 +167,5 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     }
 
     solucao = melhorSolucao;
-    std::cout << temposExecucaoLocalSearch.size() << std::endl;
-    
-    double mediaMulta = std::accumulate(resultadosMultaLocalSearch.begin(), resultadosMultaLocalSearch.end(), 0.0) / numExecLocalSearch;
-    double mediaTempo = std::accumulate(temposExecucaoLocalSearch.begin(), temposExecucaoLocalSearch.end(), 0.0) / numExecLocalSearch;
-
-    double melhorMulta = *std::min_element(resultadosMultaLocalSearch.begin(), resultadosMultaLocalSearch.end());
-
-    double gap = calcularGap(setup.valorOtimo, melhorMulta);
-
-    std::string nomeArquivo = "../results_local_search/" + instanceName + "_resultados.txt";
-    std::ofstream arquivoResultado(nomeArquivo);
-
-    if (arquivoResultado.is_open()) {
-        arquivoResultado << "Resultados para a instância: " << instanceName << "\n\n";
-        arquivoResultado << "Valor ótimo: " << setup.valorOtimo << "\n";
-        arquivoResultado << "Média da multa: " << mediaMulta << "\n";
-        arquivoResultado << "Melhor multa: " << melhorMulta << "\n";
-        arquivoResultado << "Média do tempo de execução: " << mediaTempo << " segundos\n";
-        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
-
-        arquivoResultado.close();
-        std::cout << "Resultados salvos em: " << nomeArquivo << std::endl;
-    } else {
-        std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
-    }
 
 }

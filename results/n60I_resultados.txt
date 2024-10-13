@@ -1,0 +1,8 @@
+Resultados para a instância: n60I
+
+Número de execuções: 10
+Valor ótimo: 43286
+Média da multa: 43985.2
+Melhor multa: 43775
+Média do tempo de execução: 355.251 segundos
+Gap em relação ao valor ótimo: 1.1297

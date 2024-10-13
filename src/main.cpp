@@ -48,7 +48,7 @@ void rodarExperimento(Solucao &solucaoOriginal, const double valorOtimo, int num
 
     double gap = calcularGapMain(valorOtimo, melhorMulta);
 
-    std::string nomeArquivo = "../resultados_copa_apa/" + instanceName + "_resultados.txt";
+    std::string nomeArquivo = "../results/" + instanceName + "_resultados.txt";
     std::ofstream arquivoResultado(nomeArquivo);
 
     if (arquivoResultado.is_open()) {

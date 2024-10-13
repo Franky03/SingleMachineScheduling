@@ -4,5 +4,5 @@ Número de execuções: 10
 Valor ótimo: 53555
 Média da multa: 53555
 Melhor multa: 53555
-Média do tempo de execução: 627.495 segundos
+Média do tempo de execução: 340.93 segundos
 Gap em relação ao valor ótimo: 0

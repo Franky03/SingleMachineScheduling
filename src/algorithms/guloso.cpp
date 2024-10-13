@@ -16,7 +16,7 @@ Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
     std::vector<Pedido> naoAlocados = solucao->pedidos;
     solucao->pedidos.clear();
     
-    // complexidade O(n log n)
+    // complexidade O(n) para construir a fila de prioridade
     std::priority_queue<Pedido, std::vector<Pedido>, CompararPedido> filaPrioridade(naoAlocados.begin(), naoAlocados.end());
     std::vector<Pedido> RCL; // Restricted Candidate List  
 
@@ -24,10 +24,9 @@ Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
     int limiteEstatico = numPedidos / 3;  // define o ponto de corte
 
     // processa a primeira metade dos pedidos de forma estática
-    // O(n/3 log n)
     for (int i = 0; i < limiteEstatico && !filaPrioridade.empty(); ++i) {
-        Pedido pedido = filaPrioridade.top();
-        filaPrioridade.pop();
+        Pedido pedido = filaPrioridade.top(); // O(1)
+        filaPrioridade.pop(); // O(log n)
         solucao->pedidos.push_back(pedido);
     }
 
@@ -49,10 +48,6 @@ Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
         // remove o escolhido da RCL
         RCL.erase(RCL.begin() + indexEscolhido);
     }
-
-
-    allImprovementSwap(*solucao, setup);
-    allImprovementShift(*solucao, setup, 1);
 
     return solucao;
 }

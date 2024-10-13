@@ -18,16 +18,6 @@ struct Pedido {
     int id;
 };
 
-
-struct hash_pair {
-    template <class T1, class T2>
-    size_t operator()(const pair<T1, T2>& p) const {
-        auto hash1 = hash<T1>{}(p.first);
-        auto hash2 = hash<T2>{}(p.second);
-        return hash1 ^ hash2;
-    }
-};
-
 class Setup {
 public:
     vector<vector<int>> s;
@@ -58,7 +48,7 @@ public:
     Solucao() : multaSolucao(0) {}
     Solucao(const vector<Pedido>& pedidos, int multa) : pedidos(pedidos), multaSolucao(multa) {}
 
-    // Calcula a multa de um pedido
+    // calcula a multa de um pedido
     inline double calcularMultaPedido(int tempoAtual, const Pedido& pedido) {
         if (tempoAtual > pedido.prazo) {
             int atraso = tempoAtual - pedido.prazo;
