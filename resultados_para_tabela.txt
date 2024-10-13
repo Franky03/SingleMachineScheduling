@@ -1,0 +1,270 @@
+Resultados para a instância: n60A
+
+Número de execuções: 10
+Valor ótimo: 453
+Média da multa: 464.1
+Melhor multa: 459
+Média do tempo de execução: 291.491 segundos
+Gap em relação ao valor ótimo: 1.3245
+Resultados para a instância: n60A
+
+Valor ótimo: 453
+Média da multa: 4.96916
+Melhor multa: 471
+Média do tempo de execução: 0.000245367 segundos
+Gap em relação ao valor ótimo: 3.97351
+
+Resultados para a instância: n60B
+
+Número de execuções: 10
+Valor ótimo: 1757
+Média da multa: 1778
+Melhor multa: 1761
+Média do tempo de execução: 310.827 segundos
+Gap em relação ao valor ótimo: 0.227661
+
+Resultados para a instância: n60B
+
+Valor ótimo: 1757
+Média da multa: 36.4441
+Melhor multa: 1761
+Média do tempo de execução: 0.000421091 segundos
+Gap em relação ao valor ótimo: 0.227661
+
+Resultados para a instância: n60C
+
+Número de execuções: 10
+Valor ótimo: 0
+Média da multa: 0
+Melhor multa: 0
+Média do tempo de execução: 0.0508361 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60C
+
+Valor ótimo: 0
+Média da multa: 0
+Melhor multa: 0
+Média do tempo de execução: 2.82752e-07 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60D
+
+Número de execuções: 10
+Valor ótimo: 69102
+Média da multa: 69102
+Melhor multa: 69102
+Média do tempo de execução: 290.046 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60D
+
+Valor ótimo: 69102
+Média da multa: 556.289
+Melhor multa: 69102
+Média do tempo de execução: 0.000273175 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60E
+
+Número de execuções: 10
+Valor ótimo: 58935
+Média da multa: 58935
+Melhor multa: 58935
+Média do tempo de execução: 282.099 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60E
+
+Valor ótimo: 58935
+Média da multa: 3099.01
+Melhor multa: 58935
+Média do tempo de execução: 0.00177302 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60F
+
+Número de execuções: 10
+Valor ótimo: 93045
+Média da multa: 93136.2
+Melhor multa: 93045
+Média do tempo de execução: 311.737 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60F
+
+Valor ótimo: 93045
+Média da multa: 1890.43
+Melhor multa: 93273
+Média do tempo de execução: 0.00067941 segundos
+Gap em relação ao valor ótimo: 0.245043
+
+Resultados para a instância: n60G
+
+Número de execuções: 10
+Valor ótimo: 64632
+Média da multa: 71118
+Melhor multa: 71118
+Média do tempo de execução: 289.435 segundos
+Gap em relação ao valor ótimo: 10.0353
+
+Resultados para a instância: n60G
+
+Valor ótimo: 64632
+Média da multa: 524.195
+Melhor multa: 71118
+Média do tempo de execução: 0.000248491 segundos
+Gap em relação ao valor ótimo: 10.0353
+
+Resultados para a instância: n60H
+
+Número de execuções: 10
+Valor ótimo: 145007
+Média da multa: 145172
+Melhor multa: 145007
+Média do tempo de execução: 321.906 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60H
+
+Valor ótimo: 145007
+Média da multa: 2290.45
+Melhor multa: 145122
+Média do tempo de execução: 0.000549997 segundos
+Gap em relação ao valor ótimo: 0.0793065
+
+Resultados para a instância: n60I
+
+Número de execuções: 10
+Valor ótimo: 43286
+Média da multa: 43985.2
+Melhor multa: 43775
+Média do tempo de execução: 355.251 segundos
+Gap em relação ao valor ótimo: 1.1297
+
+Resultados para a instância: n60I
+
+Valor ótimo: 43286
+Média da multa: 543.038
+Melhor multa: 43904
+Média do tempo de execução: 0.000428144 segundos
+Gap em relação ao valor ótimo: 1.42771
+
+Resultados para a instância: n60J
+
+Número de execuções: 10
+Valor ótimo: 53555
+Média da multa: 53555
+Melhor multa: 53555
+Média do tempo de execução: 340.93 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60J
+
+Valor ótimo: 53555
+Média da multa: 6529.32
+Melhor multa: 53555
+Média do tempo de execução: 0.0043493 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60K
+
+Número de execuções: 10
+Valor ótimo: 458752
+Média da multa: 458752
+Melhor multa: 458752
+Média do tempo de execução: 245.224 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60K
+
+Valor ótimo: 458752
+Média da multa: 9351.08
+Melhor multa: 458752
+Média do tempo de execução: 0.000615076 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60L
+
+Número de execuções: 10
+Valor ótimo: 332941
+Média da multa: 332947
+Melhor multa: 332941
+Média do tempo de execução: 266.77 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60L
+
+Valor ótimo: 332941
+Média da multa: 4276.88
+Melhor multa: 332941
+Média do tempo de execução: 0.000410059 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60M
+
+Número de execuções: 10
+Valor ótimo: 516926
+Média da multa: 517187
+Melhor multa: 516926
+Média do tempo de execução: 279.857 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60M
+
+Valor ótimo: 516926
+Média da multa: 4483.12
+Melhor multa: 517084
+Média do tempo de execução: 0.000286341 segundos
+Gap em relação ao valor ótimo: 0.0305653
+
+Resultados para a instância: n60N
+
+Número de execuções: 10
+Valor ótimo: 492572
+Média da multa: 492572
+Melhor multa: 492572
+Média do tempo de execução: 253.11 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60N
+
+Valor ótimo: 492572
+Média da multa: 13062.4
+Melhor multa: 492572
+Média do tempo de execução: 0.000815895 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60O
+
+Número de execuções: 10
+Valor ótimo: 527459
+Média da multa: 530601
+Melhor multa: 530601
+Média do tempo de execução: 272.918 segundos
+Gap em relação ao valor ótimo: 0.595686
+
+Resultados para a instância: n60O
+
+Valor ótimo: 527459
+Média da multa: 18524
+Melhor multa: 530601
+Média do tempo de execução: 0.00114388 segundos
+Gap em relação ao valor ótimo: 0.595686
+
+Resultados para a instância: n60P
+
+Número de execuções: 10
+Valor ótimo: 396183
+Média da multa: 396313
+Melhor multa: 396183
+Média do tempo de execução: 300.763 segundos
+Gap em relação ao valor ótimo: 0
+
+Resultados para a instância: n60P
+
+Valor ótimo: 396183
+Média da multa: 3745.55
+Melhor multa: 396614
+Média do tempo de execução: 0.000342478 segundos
+Gap em relação ao valor ótimo: 0.108788

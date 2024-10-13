@@ -13,14 +13,12 @@
 #include <algorithm>
 #include <cassert>
 
-#define MAX_ITER 600
-#define MAX_ITER_ILS 600
+#define MAX_ITER 200
+#define MAX_ITER_ILS 400
 
 std::mutex mtx;
 std::mutex mtxResultados;  
 std::atomic<bool> stop(false);
-
-int numExecLocalSearch = 0;
 
 double calcularGap(double optimal, double found){
     if (optimal == 0) return 0;
@@ -29,7 +27,7 @@ double calcularGap(double optimal, double found){
 
 void BuscaLocal(Solucao& solucao, const Setup& setup) { 
     // a complexidade da busca local vai ser a complexidade do movimento escolhido
-    std::vector<int> metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+    std::vector<int> metodos = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
     bool melhorou = false;
 
     while(!metodos.empty()){
@@ -88,13 +86,13 @@ void BuscaLocal(Solucao& solucao, const Setup& setup) {
                 break;
             case 17:
                 melhorou = bestImprovementShift(solucao, setup, 20);
-                break;
+                break; 
             case 18:
-                melhorou = bestImprovementShift(solucao, setup, 40);
+                melhorou = bestImprovement2opt(solucao, setup);
                 break;
         }
         if(melhorou){
-            metodos = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18};
+            metodos = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18};
         } else {
             metodos.erase(metodos.begin() + n);
         }
@@ -149,17 +147,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {    
-            auto start = std::chrono::high_resolution_clock::now();
             BuscaLocal(novaSolucao, setup);
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> elapsed_seconds = end - start;
-
-            {
-                std::lock_guard<std::mutex> lock(mtxResultados);
-                resultadosMultaLocalSearch.push_back(novaSolucao.multaSolucao);
-                temposExecucaoLocalSearch.push_back(elapsed_seconds.count());
-                ++numExecLocalSearch;
-            }
 
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  
@@ -172,6 +160,7 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             }
             
             DoubleBridge(novaSolucao); // O(n)
+            if(iterILS % 25 == 0) EmbaralhaPedidos(novaSolucao);
             novaSolucao.calcularMulta(setup);
         
             iterILS++;
@@ -219,8 +208,6 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     std::vector<double> temposExecucaoLocalSearch;
 
     solucao.calcularMulta(setup);
-
-
     Solucao melhorSolucao = solucao;
 
     stop.store(false);
@@ -238,30 +225,5 @@ void ILS_Opt(Solucao& solucao, const Setup& setup, const std::string& instanceNa
     }
 
     solucao = melhorSolucao;
-    std::cout << temposExecucaoLocalSearch.size() << std::endl;
-    
-    double mediaMulta = std::accumulate(resultadosMultaLocalSearch.begin(), resultadosMultaLocalSearch.end(), 0.0) / numExecLocalSearch;
-    double mediaTempo = std::accumulate(temposExecucaoLocalSearch.begin(), temposExecucaoLocalSearch.end(), 0.0) / numExecLocalSearch;
-
-    double melhorMulta = *std::min_element(resultadosMultaLocalSearch.begin(), resultadosMultaLocalSearch.end());
-
-    double gap = calcularGap(setup.valorOtimo, melhorMulta);
-
-    std::string nomeArquivo = "../results_local_search/" + instanceName + "_resultados.txt";
-    std::ofstream arquivoResultado(nomeArquivo);
-
-    if (arquivoResultado.is_open()) {
-        arquivoResultado << "Resultados para a instância: " << instanceName << "\n\n";
-        arquivoResultado << "Valor ótimo: " << setup.valorOtimo << "\n";
-        arquivoResultado << "Média da multa: " << mediaMulta << "\n";
-        arquivoResultado << "Melhor multa: " << melhorMulta << "\n";
-        arquivoResultado << "Média do tempo de execução: " << mediaTempo << " segundos\n";
-        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
-
-        arquivoResultado.close();
-        std::cout << "Resultados salvos em: " << nomeArquivo << std::endl;
-    } else {
-        std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
-    }
 
 }

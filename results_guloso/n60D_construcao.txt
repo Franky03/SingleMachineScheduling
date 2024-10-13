@@ -1,0 +1,7 @@
+Resultados para a instância: n60D
+
+Valor ótimo: 69102
+Média da multa: 99154
+Melhor multa: 99154
+Média do tempo de execução: 0.000315924 segundos
+Gap em relação ao valor ótimo: 43.4893

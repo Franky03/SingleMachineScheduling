@@ -1,8 +1,8 @@
 Resultados para a instância: n60H
 
-Número de execuções: 10
+Número de execuções: 1
 Valor ótimo: 145007
-Média da multa: 145341
-Melhor multa: 145007
-Média do tempo de execução: 615.714 segundos
-Gap em relação ao valor ótimo: 0
+Média da multa: 145122
+Melhor multa: 145122
+Média do tempo de execução: 498.004 segundos
+Gap em relação ao valor ótimo: 0.0793065

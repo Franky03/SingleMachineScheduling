@@ -1,0 +1,7 @@
+Resultados para a instância: n60J
+
+Valor ótimo: 53555
+Média da multa: 64180
+Melhor multa: 53555
+Média do tempo de execução: 0.0606973 segundos
+Gap em relação ao valor ótimo: 0
