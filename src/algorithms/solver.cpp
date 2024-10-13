@@ -133,7 +133,7 @@ void DoubleBridge(Solucao &solucao){
     solucao.pedidos = std::move(novoVetor); // move novoVetor para solucao.pedidos O(1)
 }
 
-void SmoothPertubation(Solucao& solucao, const Setup& setup) {
+void SmoothPertubation(Solucao& solucao) {
     int n = solucao.pedidos.size();
     int idx = rand() % n;
     
@@ -143,8 +143,6 @@ void SmoothPertubation(Solucao& solucao, const Setup& setup) {
     int novaPos = rand() % n;
     
     solucao.pedidos.insert(solucao.pedidos.begin() + novaPos, pedido);
-    
-    solucao.calcularMulta(setup);
 }
 
 void FineTuning(Solucao& solucao, const Setup& setup, const std::string& nomeArquivo) {
