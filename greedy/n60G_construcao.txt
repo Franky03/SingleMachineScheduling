@@ -1,0 +1,7 @@
+Resultados para a instância: n60G
+
+Valor ótimo: 64632
+Média da multa: 218577
+Melhor multa: 169154
+Média do tempo de execução: 0.000319416 segundos
+Gap em relação ao valor ótimo: 161.719
