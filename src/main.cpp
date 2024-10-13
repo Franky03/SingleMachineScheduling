@@ -68,6 +68,52 @@ void rodarExperimento(Solucao &solucaoOriginal, const double valorOtimo, int num
 
 }
 
+void rodarBuscaLocalApenas(Solucao &solucaoOriginal, const Setup& setup, const std::string& instanceName){
+    std::vector<double> resultadosMulta;
+    std::vector<double> temposExecucao;
+
+    for(int i = 0; i < 10; i++){
+        Solucao nova = *Construcao(&solucaoOriginal, setup, 0.5);
+        nova.calcularMulta(setup);
+        auto start = std::chrono::high_resolution_clock::now();
+        BuscaLocal(nova, setup);
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = end - start;
+
+        resultadosMulta.push_back(nova.multaSolucao);
+        temposExecucao.push_back(elapsed_seconds.count());
+    }
+
+    double mediaMulta = std::accumulate(resultadosMulta.begin(), resultadosMulta.end(), 0.0) / 10;
+    double mediaTempo = std::accumulate(temposExecucao.begin(), temposExecucao.end(), 0.0) / 10;
+
+    double melhorMulta = *std::min_element(resultadosMulta.begin(), resultadosMulta.end());
+
+    double gap = calcularGapMain(setup.valorOtimo, melhorMulta);    
+
+    std::string nomeArquivo = "../rvnd/" + instanceName + "_resultados.txt";
+    std::ofstream arquivoResultado(nomeArquivo);
+
+    if (arquivoResultado.is_open()) {
+        
+        arquivoResultado << "Resultados para a instância: " << instanceName << "\n\n";
+        arquivoResultado << "Média do tempo de execução: " << mediaTempo << " segundos\n";
+        arquivoResultado << std::fixed << std::setprecision(2);
+        arquivoResultado << "Gap em relação ao valor ótimo: " << gap << "\n";
+        arquivoResultado << "Número de execuções: " << 10 << "\n";
+        arquivoResultado << std::fixed << std::setprecision(0);
+        arquivoResultado << "Valor ótimo: " << setup.valorOtimo << "\n";
+        arquivoResultado << "Média da multa: " << mediaMulta << "\n";
+        arquivoResultado << "Melhor multa: " << melhorMulta << "\n";
+        
+
+        arquivoResultado.close();
+        std::cout << "Resultados salvos em: " << nomeArquivo << std::endl;
+    } else {
+        std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
+    }
+}
+
 void rodarConstrucaoApenas(Solucao &solucaoOriginal, const Setup& setup, const std::string& instanceName){
     std::vector<double> resultadosMulta;
     std::vector<double> temposExecucao;
@@ -147,7 +193,7 @@ int main(){
         }
         setup.valorOtimo = valorOtimo;
 
-        rodarConstrucaoApenas(solucao, setup, instanceName);
+        rodarExperimento(solucao, valorOtimo, numExecucoes, instanceName, setup);
     }
 
     

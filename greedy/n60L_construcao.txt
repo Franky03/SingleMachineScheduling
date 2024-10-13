@@ -1,6 +1,6 @@
 Resultados para a instância: n60L
 
-Média do tempo de execução: 7.517e-06 segundos
+Média do tempo de execução: 7.1647e-06 segundos
 Gap em relação ao valor ótimo: 223.75
 Número de execuções: 10
 Valor ótimo: 332941

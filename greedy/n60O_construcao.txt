@@ -1,6 +1,6 @@
 Resultados para a instância: n60O
 
-Média do tempo de execução: 7.486e-06 segundos
+Média do tempo de execução: 7.5791e-06 segundos
 Gap em relação ao valor ótimo: 201.98
 Número de execuções: 10
 Valor ótimo: 527459

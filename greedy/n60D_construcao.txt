@@ -1,6 +1,6 @@
 Resultados para a instância: n60D
 
-Média do tempo de execução: 7.6311e-06 segundos
+Média do tempo de execução: 7.2834e-06 segundos
 Gap em relação ao valor ótimo: 424.01
 Número de execuções: 10
 Valor ótimo: 69102

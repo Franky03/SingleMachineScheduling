@@ -1,6 +1,6 @@
 Resultados para a instância: n60K
 
-Média do tempo de execução: 7.0679e-06 segundos
+Média do tempo de execução: 8.0559e-06 segundos
 Gap em relação ao valor ótimo: 116.69
 Número de execuções: 10
 Valor ótimo: 458752

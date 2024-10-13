@@ -1,6 +1,6 @@
 Resultados para a instância: n60P
 
-Média do tempo de execução: 8.2423e-06 segundos
+Média do tempo de execução: 6.9959e-06 segundos
 Gap em relação ao valor ótimo: 249.03
 Número de execuções: 10
 Valor ótimo: 396183

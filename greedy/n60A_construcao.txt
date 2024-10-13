@@ -1,6 +1,6 @@
 Resultados para a instância: n60A
 
-Média do tempo de execução: 6.9813e-06 segundos
+Média do tempo de execução: 7.0789e-06 segundos
 Gap em relação ao valor ótimo: 32781.90
 Número de execuções: 10
 Valor ótimo: 453
