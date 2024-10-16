@@ -14,8 +14,8 @@
 #include <cassert>
 #include <sstream>
 
-#define MAX_ITER 600
-#define MAX_ITER_ILS 600
+#define MAX_ITER 50
+#define MAX_ITER_ILS 100
 
 std::mutex mtx;
 std::mutex mtxResultados;  
@@ -259,36 +259,21 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
             break;
         }
 
-        FineTuning(melhorSolucao, setup, "../fine_tuning/n200_ft.txt");
-        novaSolucao = melhorSolucao;
-        Solucao melhorLocal = novaSolucao; 
+        novaSolucao = *Construcao(&melhorSolucao, setup, 0.5);
+        Solucao melhorLocal = novaSolucao;
 
         int iterILS = 0;
         while (iterILS < MAX_ITER_ILS) {    
             BuscaLocal(novaSolucao, setup);
             if (novaSolucao.multaSolucao < melhorLocal.multaSolucao) {
                 melhorLocal = novaSolucao;  
-                std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
-                << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
                 
                 if (melhorLocal.multaSolucao < melhorSolucaoGlobal.multaSolucao) {
-                     std::string nomeArquivo = "../resultados_copa_apa/resultados.txt";
-                        std::ofstream arquivoResultado(nomeArquivo);
-
-                        if (arquivoResultado.is_open()) {
-                            arquivoResultado << "Melhor solução encontrada: " << melhorLocal.multaSolucao << "\n";
-                            for (int i = 0; i < melhorLocal.pedidos.size(); ++i) {
-                                arquivoResultado << melhorLocal.pedidos[i].id << " ";
-                            }
-
-                            arquivoResultado.close();
-                        } else {
-                            std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
-                        }
+                        std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
+                    << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
 
                         melhorSolucaoGlobal = melhorLocal;
                 }
-
 
                 iterILS = 0;
             }
@@ -312,21 +297,6 @@ void ILS_thread(Solucao& melhorSolucaoGlobal, int iterStart, int iterEnd, const 
                 melhorSolucaoGlobal = melhorLocal;
                  std::cout << "Thread " << std::this_thread::get_id() << " - Iteração " << i 
                 << " - Melhor solução local: \033[32m" << melhorLocal.multaSolucao << "\033[0m" << std::endl;
-
-                std::string nomeArquivo = "../resultados_copa_apa/resultados.txt";
-                std::ofstream arquivoResultado(nomeArquivo);
-
-                if (arquivoResultado.is_open()) {
-                    arquivoResultado << "Melhor solução encontrada: " << melhorLocal.multaSolucao << "\n";
-                    for (int i = 0; i < melhorLocal.pedidos.size(); ++i) {
-                        arquivoResultado << melhorLocal.pedidos[i].id << " ";
-                    }
-
-                    arquivoResultado.close();
-                } else {
-                    std::cerr << "Erro ao abrir o arquivo de resultados: " << nomeArquivo << std::endl;
-                }
-
 
             }
            

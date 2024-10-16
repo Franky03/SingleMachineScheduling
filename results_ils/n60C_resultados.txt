@@ -1,8 +1,0 @@
-Resultados para a instância: n60C
-
-Número de execuções: 10
-Valor ótimo: 0
-Média da multa: 0
-Melhor multa: 0
-Média do tempo de execução: 0.0414543 segundos
-Gap em relação ao valor ótimo: 0
