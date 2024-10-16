@@ -159,7 +159,7 @@ bool bestImprovementInsert(Solucao& solucao, const Setup& setup) {
     return false;
 }
 
-bool bestImprovementShift(Solucao& solucao, const Setup& setup, int k) {
+bool bestImprovementReinsert(Solucao& solucao, const Setup& setup, int k) {
     double bestDeltaMulta = 0;
     int best_i = -1, best_j = -1, best_k = -1;
 

@@ -50,10 +50,6 @@ Solucao* Construcao(Solucao* solucao, const Setup& setup ,double alpha) {
         RCL.erase(RCL.begin() + indexEscolhido);
     }
 
-
-    allImprovementSwap(*solucao, setup);
-    allImprovementShift(*solucao, setup, 1);
-
     return solucao;
 }
 

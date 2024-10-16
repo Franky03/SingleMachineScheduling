@@ -1,13 +1,19 @@
-lista = [57, 127, 80, 288, 287, 134, 258, 284, 263, 268, 179, 290, 294, 14, 38, 270, 71, 271, 297, 144, 202, 77, 73, 55, 30, 13, 53, 212, 22, 45, 158, 147, 133, 217, 162, 95, 204, 102, 136, 89, 122, 176, 163, 189, 124, 166, 48, 67, 168, 219, 227, 196, 235, 150, 44, 98, 109, 26, 160, 222, 234, 51, 128, 37, 126, 236, 103, 75, 200, 94, 92, 239, 130, 64, 148, 230, 63, 172, 174, 21, 42, 157, 226, 120, 105, 6, 188, 4, 291, 193, 266, 123, 185, 82, 233, 0, 231, 253, 149, 68, 154, 170, 209, 88, 70, 16, 289, 121, 256, 107, 110, 140, 220, 24, 215, 225, 99, 36, 183, 178, 186, 249, 76, 208, 257, 141, 3, 111, 156, 272, 146, 145, 224, 237, 267, 78, 177, 187, 139, 221, 96, 90, 262, 11, 49, 190, 113, 241, 131, 46, 228, 275, 242, 137, 101, 265, 35, 119, 216, 59, 203, 269, 135, 278, 273, 199, 240, 116, 169, 19, 10, 1, 223, 152, 280, 194, 296, 58, 283, 165, 281, 205, 252, 9, 292, 181, 85, 87, 108, 279, 238, 214, 246, 254, 66, 195, 50, 259, 155, 33, 198, 25, 5, 62, 29, 112, 277, 261, 91, 84, 210, 31, 60, 175, 8, 23, 180, 15, 218, 43, 142, 274, 298, 182, 117, 69, 243, 251, 229, 54, 74, 18, 17, 56, 213, 143, 83, 264, 115, 206, 151, 247, 86, 12, 47, 61, 97, 125, 232, 211, 173, 282, 167, 41, 295, 132, 197, 34, 118, 164, 260, 159, 161, 40, 207, 192, 39, 153, 106, 32, 171, 201, 245, 93, 293, 191, 250, 255, 285, 27, 81, 2, 129, 72, 52, 100, 286, 28, 184, 138, 7, 299, 104, 276, 65, 79, 114, 20, 244, 248]
+# Abrir o arquivo com os números separados por espaço
+with open("lista_inicial.txt", "r") as f:
+    # Separar os números por espaço
+    lista = f.read().split()
+    # Converter cada item para inteiro
+    lista = [int(x) for x in lista]
 
-lista_final = []
-for num in lista:
-    lista_final.append(num+1)
+# analisar se a lista vai ter os numeros de 0 a 199
+print(set(lista) == set(range(400)))
 
-# confirmar se a lista final é igual a lista + 1
-print(lista_final == [x+1 for x in lista])
+# Criar uma nova lista com cada número incrementado em 1
+lista_final = [num + 1 for num in lista]
 
-# salvar a lista final em um arquivo, separando por vírgula
+# Confirmar se a lista final é igual à lista inicial + 1
+print(lista_final == [x + 1 for x in lista])
 
+# Salvar a lista final em um arquivo, separando os números por vírgula
 with open('lista_final.txt', 'w') as f:
     f.write(','.join(map(str, lista_final)))
